@@ -497,7 +497,7 @@ class OracleTransactionSystem {
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet;
 
-            // Pre-flight simulation (Solana validates transaction before sending)
+            // Pre-flight simulation
             try {
                 const simulation = await this.connection.simulateTransaction(transaction);
                 if (simulation.value.err) {
