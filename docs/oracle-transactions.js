@@ -52,6 +52,12 @@ class BufferPolyfill {
             const end = sourceEnd || this.length;
             target.set(this.slice(start, end), targetStart);
         };
+        arr.toString = function(encoding) {
+            if (encoding === 'hex') {
+                return Array.from(this).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            return new TextDecoder().decode(this);
+        };
         return arr;
     }
 }
@@ -280,7 +286,9 @@ class OracleTransactionSystem {
      * Create and fund escrow
      */
     async createEscrow(wallet, amount, transactionId, apiPublicKey) {
-        const { pda: escrowPda } = this.deriveEscrowPDA(transactionId);
+        try {
+            console.log('createEscrow called with:', { wallet: wallet.toString(), amount, transactionId, api: apiPublicKey.toString() });
+            const { pda: escrowPda } = this.deriveEscrowPDA(transactionId);
 
         // Check if escrow already exists
         const accountInfo = await this.connection.getAccountInfo(escrowPda);
@@ -329,8 +337,13 @@ class OracleTransactionSystem {
             dataLength: data.length,
             amount: amountLamports,
             timeLock,
-            transactionId
+            transactionId,
+            dataHex: Array.from(data).map(b => b.toString(16).padStart(2, '0')).join('')
         });
+
+        console.log('=== CHECKPOINT 1: After logging instruction ===');
+        console.log('About to create TransactionInstruction...');
+        console.log('=== CHECKPOINT 2: Before creating instruction ===');
 
         const instruction = new solanaWeb3.TransactionInstruction({
             keys: [
@@ -343,7 +356,29 @@ class OracleTransactionSystem {
             data
         });
 
-        return new solanaWeb3.Transaction().add(instruction);
+        console.log('TransactionInstruction created successfully');
+
+        try {
+            console.log('Building transaction...');
+            const transaction = new solanaWeb3.Transaction().add(instruction);
+            console.log('Transaction built successfully');
+            return transaction;
+        } catch (txError) {
+            console.error('CRITICAL ERROR building transaction:', txError);
+            console.error('Error details:', {
+                name: txError.name,
+                message: txError.message,
+                stack: txError.stack
+            });
+            throw txError;
+        }
+        } catch (error) {
+            console.error('FATAL ERROR in createEscrow:', error);
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Stack:', error.stack);
+            throw error;
+        }
     }
 
     /**
@@ -509,12 +544,36 @@ class OracleTransactionSystem {
                 if (simulation.value.err) {
                     console.error('Pre-flight validation failed:', simulation.value);
 
+                    // Log full simulation details
+                    if (simulation.value.logs) {
+                        console.error('Program logs:', simulation.value.logs);
+                    }
+
                     // Try to decode Anchor error
                     let errorMsg = JSON.stringify(simulation.value.err);
                     if (simulation.value.err.InstructionError) {
                         const [idx, err] = simulation.value.err.InstructionError;
-                        if (err.Custom === 1) {
-                            errorMsg = `Instruction ${idx}: Anchor error 0x1 (possibly ConstraintMut - account not writable, or account already initialized)`;
+
+                        // Decode common Anchor errors
+                        if (typeof err === 'object') {
+                            if (err.Custom !== undefined) {
+                                const errorCode = err.Custom;
+                                const anchorErrors = {
+                                    1: 'Anchor constraint violation (account not writable or already initialized)',
+                                    100: 'InvalidAmount',
+                                    101: 'AmountTooLarge',
+                                    102: 'InvalidTimeLock',
+                                    103: 'InvalidTransactionId',
+                                    104: 'EscrowNotActive',
+                                    105: 'EscrowNotDisputed',
+                                    106: 'UnauthorizedCaller',
+                                    107: 'InvalidSignature',
+                                    108: 'TimeLockNotExpired'
+                                };
+                                errorMsg = `Instruction ${idx}: ${anchorErrors[errorCode] || `Custom error ${errorCode}`}`;
+                            } else if (err.InvalidInstruction !== undefined) {
+                                errorMsg = `Instruction ${idx}: Invalid instruction - check discriminator and data format`;
+                            }
                         }
                     }
 

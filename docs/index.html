@@ -307,6 +307,7 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
+            text-transform: none !important;
         }
 
         button:disabled {
@@ -325,6 +326,7 @@
             transition: all 0.2s ease;
             cursor: pointer;
             border-radius: 6px;
+            text-transform: none !important;
         }
 
         .btn-magenta-outline:hover:not(:disabled) {
@@ -1433,15 +1435,18 @@ pub mod x402_escrow {
 
                 // Step 2: Create Escrow
                 btn.textContent = 'Creating escrow...';
+                console.log('Calling createEscrow...');
                 const escrowTx = await window.oracleSystem.createEscrow(
                     walletPublicKey,
                     value,
                     transactionId,
                     apiPublicKey
                 );
+                console.log('createEscrow returned:', escrowTx ? 'transaction' : 'null');
 
                 let escrowSig;
                 if (escrowTx) {
+                    console.log('Calling sendAndConfirm...');
                     escrowSig = await window.oracleSystem.sendAndConfirm(escrowTx, walletPublicKey);
                     console.log('Escrow created:', escrowSig);
                     showStatus(`Escrow created: ${escrowSig.substring(0, 8)}...`, 'success');
