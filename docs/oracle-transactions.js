@@ -285,8 +285,8 @@ class OracleTransactionSystem {
         // Check if escrow already exists
         const accountInfo = await this.connection.getAccountInfo(escrowPda);
         if (accountInfo) {
-            console.warn('Escrow already exists for transaction ID:', transactionId);
-            throw new Error(`Escrow already exists for transaction ID: ${transactionId}`);
+            console.log('Escrow already exists for transaction ID:', transactionId, '- skipping creation');
+            return null; // Return null to indicate escrow already exists
         }
 
         console.log('Creating new escrow:', { transactionId, amount, escrowPda: escrowPda.toString() });

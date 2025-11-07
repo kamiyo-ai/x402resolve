@@ -1439,10 +1439,17 @@ pub mod x402_escrow {
                     transactionId,
                     apiPublicKey
                 );
-                const escrowSig = await window.oracleSystem.sendAndConfirm(escrowTx, walletPublicKey);
-                console.log('Escrow created:', escrowSig);
 
-                showStatus(`Escrow created: ${escrowSig.substring(0, 8)}...`, 'success');
+                let escrowSig;
+                if (escrowTx) {
+                    escrowSig = await window.oracleSystem.sendAndConfirm(escrowTx, walletPublicKey);
+                    console.log('Escrow created:', escrowSig);
+                    showStatus(`Escrow created: ${escrowSig.substring(0, 8)}...`, 'success');
+                } else {
+                    console.log('Using existing escrow');
+                    showStatus('Using existing escrow', 'success');
+                }
+
                 progressFill.style.width = '50%';
                 await sleep(2000);
 
