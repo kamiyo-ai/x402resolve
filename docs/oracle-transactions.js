@@ -528,8 +528,9 @@ class OracleTransactionSystem {
 
             // Use signAndSendTransaction for better Phantom compatibility
             if (window.solana && window.solana.signAndSendTransaction) {
+                console.log('Requesting wallet signature...');
                 const { signature } = await window.solana.signAndSendTransaction(transaction);
-                console.log('Transaction sent:', signature);
+                console.log('Transaction sent with signature:', signature);
 
                 // Confirm transaction
                 const confirmation = await this.connection.confirmTransaction({
@@ -544,6 +545,7 @@ class OracleTransactionSystem {
 
                 return signature;
             } else {
+                console.log('Using fallback: signTransaction + sendRawTransaction');
                 // Fallback to signTransaction + sendRawTransaction
                 const signed = await window.solana.signTransaction(transaction);
 
@@ -569,7 +571,12 @@ class OracleTransactionSystem {
                 return signature;
             }
         } catch (error) {
-            console.error('Transaction failed:', error);
+            console.error('sendAndConfirm failed:', error);
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            if (error.logs) {
+                console.error('Transaction logs:', error.logs);
+            }
             throw error;
         }
     }
