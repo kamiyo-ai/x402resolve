@@ -393,6 +393,14 @@ class OracleTransactionSystem {
         // Build resolve_dispute instruction
         const discriminator = Buffer.from([231, 6, 202, 6, 96, 103, 12, 230]); // resolve_dispute discriminator from IDL
 
+        console.log('Building resolve_dispute instruction:', {
+            qualityScore: assessment.qualityScore,
+            refundPercentage: assessment.refundPercentage,
+            signatureLength: assessment.signature.length,
+            signatureType: typeof assessment.signature,
+            oracleKey: assessment.oraclePublicKey.toString()
+        });
+
         const dataLayout = Buffer.alloc(100);
         let offset = 0;
 
@@ -408,10 +416,15 @@ class OracleTransactionSystem {
         offset += 1;
 
         // signature ([u8; 64])
-        Buffer.from(assessment.signature).copy(dataLayout, offset);
+        const sigBytes = Buffer.from(assessment.signature);
+        if (sigBytes.length !== 64) {
+            throw new Error(`Signature must be 64 bytes, got ${sigBytes.length}`);
+        }
+        sigBytes.copy(dataLayout, offset);
         offset += 64;
 
         const data = dataLayout.slice(0, offset);
+        console.log('Instruction data size:', data.length, 'bytes');
 
         const resolveIx = new solanaWeb3.TransactionInstruction({
             keys: [
