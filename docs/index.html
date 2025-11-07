@@ -915,7 +915,7 @@
 
                 <div class="form-group">
                     <label>Transaction Value (SOL)</label>
-                    <input type="number" id="oracleValue" value="1.5" step="0.1" min="0.1" max="10">
+                    <input type="number" id="oracleValue" value="0.1" step="0.01" min="0.01" max="10">
                     <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
                         Transactions > 1 SOL require 3-oracle consensus
                     </p>
@@ -1617,12 +1617,14 @@ pub mod x402_escrow {
                 let errorMsg = error.message || 'Unknown error';
                 if (errorMsg.includes('User rejected') || errorMsg.includes('rejected')) {
                     errorMsg = 'Transaction rejected by wallet';
-                } else if (errorMsg.includes('Attempt to debit') || errorMsg.includes('insufficient')) {
-                    errorMsg = 'Insufficient SOL balance - get devnet SOL at <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
+                } else if (errorMsg.includes('Attempt to debit') || errorMsg.includes('insufficient lamports') || errorMsg.includes('insufficient')) {
+                    errorMsg = 'Insufficient SOL balance - your wallet needs more SOL than the escrow amount to cover transaction fees and rent. Get devnet SOL at <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
                 } else if (errorMsg.includes('blockhash') || errorMsg.includes('timeout')) {
                     errorMsg = 'Network error, please try again';
                 } else if (errorMsg.includes('Custom:101') || errorMsg.includes('"Custom":101')) {
-                    errorMsg = 'Insufficient funds or account initialization failed - ensure your wallet has at least 0.1 SOL from <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
+                    errorMsg = 'Insufficient funds or account initialization failed - ensure your wallet has at least 0.5 SOL from <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
+                } else if (errorMsg.includes('Custom:1') || errorMsg.includes('"Custom":1') || errorMsg.includes('Anchor error 0x1')) {
+                    errorMsg = 'Transaction validation failed - likely insufficient funds. Ensure your wallet has enough SOL to cover escrow amount + fees (~0.1 SOL extra). Get devnet SOL at <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
                 } else if (errorMsg.includes('validation failed') || errorMsg.includes('InvalidArgument')) {
                     errorMsg = 'Transaction validation failed - invalid instruction arguments. Check console for details.';
                 }
