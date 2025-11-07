@@ -599,6 +599,7 @@
             font-size: 0.85rem;
             border-radius: 5px;
             width: auto;
+            text-transform: none !important;
         }
 
         .metric-badge {
@@ -647,6 +648,7 @@
             justify-content: center;
             gap: 10px;
             width: auto;
+            text-transform: none !important;
         }
 
         .wallet-connect-btn img {
@@ -681,6 +683,14 @@
             border-radius: 8px;
             margin-left: 10px;
             font-size: 0.85rem;
+        }
+
+        /* Force no text-transform on all buttons */
+        button:not(.tab),
+        .btn-magenta-outline,
+        .wallet-connect-btn,
+        .copy-button {
+            text-transform: none !important;
         }
 
         .explorer-link {
