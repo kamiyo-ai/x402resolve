@@ -497,16 +497,16 @@ class OracleTransactionSystem {
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet;
 
-            // Simulate transaction first to catch errors
+            // Pre-flight simulation (Solana validates transaction before sending)
             try {
                 const simulation = await this.connection.simulateTransaction(transaction);
                 if (simulation.value.err) {
-                    console.error('Transaction simulation failed:', simulation.value);
-                    throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
+                    console.error('Pre-flight validation failed:', simulation.value);
+                    throw new Error(`Transaction validation failed: ${JSON.stringify(simulation.value.err)}`);
                 }
-                console.log('Transaction simulation successful:', simulation.value);
+                console.log('Pre-flight validation passed:', simulation.value);
             } catch (simError) {
-                console.error('Simulation error:', simError);
+                console.error('Validation error:', simError);
                 throw simError;
             }
 
