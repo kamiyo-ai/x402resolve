@@ -144,8 +144,22 @@ class OracleTransactionSystem {
         const publicKeyBytes = publicKey.toBytes();
         const messageBytes = new TextEncoder().encode(message);
 
-        // Ed25519 instruction data format
-        const dataLayout = new Uint8Array(1 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 64 + 32 + messageBytes.length);
+        console.log('Ed25519 instruction data:', {
+            signatureLen: signatureBytes.length,
+            publicKeyLen: publicKeyBytes.length,
+            messageLen: messageBytes.length,
+            message: message
+        });
+
+        // Ed25519 instruction data format:
+        // Header (16 bytes) + Signature (64) + Public Key (32) + Message (variable)
+        const headerSize = 16;
+        const sigOffset = headerSize;
+        const pubkeyOffset = sigOffset + 64;
+        const messageOffset = pubkeyOffset + 32;
+        const totalSize = messageOffset + messageBytes.length;
+
+        const dataLayout = new Uint8Array(totalSize);
 
         let offset = 0;
 
@@ -157,8 +171,7 @@ class OracleTransactionSystem {
         dataLayout[offset] = 0;
         offset += 1;
 
-        // signature_offset (u16 LE) - comes after header (16 bytes)
-        const sigOffset = 16;
+        // signature_offset (u16 LE)
         dataLayout[offset] = sigOffset & 0xFF;
         dataLayout[offset + 1] = (sigOffset >> 8) & 0xFF;
         offset += 2;
@@ -169,7 +182,6 @@ class OracleTransactionSystem {
         offset += 2;
 
         // public_key_offset (u16 LE)
-        const pubkeyOffset = sigOffset + 64;
         dataLayout[offset] = pubkeyOffset & 0xFF;
         dataLayout[offset + 1] = (pubkeyOffset >> 8) & 0xFF;
         offset += 2;
@@ -180,7 +192,6 @@ class OracleTransactionSystem {
         offset += 2;
 
         // message_data_offset (u16 LE)
-        const messageOffset = pubkeyOffset + 32;
         dataLayout[offset] = messageOffset & 0xFF;
         dataLayout[offset + 1] = (messageOffset >> 8) & 0xFF;
         offset += 2;
@@ -195,6 +206,17 @@ class OracleTransactionSystem {
         dataLayout[offset + 1] = 0xFF;
         offset += 2;
 
+        // Verify offsets are correct
+        if (sigOffset + signatureBytes.length > totalSize) {
+            throw new Error(`Signature offset ${sigOffset} + length ${signatureBytes.length} exceeds total size ${totalSize}`);
+        }
+        if (pubkeyOffset + publicKeyBytes.length > totalSize) {
+            throw new Error(`Pubkey offset ${pubkeyOffset} + length ${publicKeyBytes.length} exceeds total size ${totalSize}`);
+        }
+        if (messageOffset + messageBytes.length > totalSize) {
+            throw new Error(`Message offset ${messageOffset} + length ${messageBytes.length} exceeds total size ${totalSize}`);
+        }
+
         // Signature data (64 bytes)
         dataLayout.set(signatureBytes, sigOffset);
 
@@ -203,6 +225,8 @@ class OracleTransactionSystem {
 
         // Message data
         dataLayout.set(messageBytes, messageOffset);
+
+        console.log('Ed25519 instruction created successfully, total size:', totalSize);
 
         return new solanaWeb3.TransactionInstruction({
             keys: [],
