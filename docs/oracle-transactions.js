@@ -321,6 +321,17 @@ class OracleTransactionSystem {
 
         const data = dataLayout.slice(0, offset);
 
+        console.log('Initialize escrow instruction:', {
+            escrowPda: escrowPda.toString(),
+            agent: wallet.toString(),
+            api: apiPublicKey.toString(),
+            programId: this.programId.toString(),
+            dataLength: data.length,
+            amount: amountLamports,
+            timeLock,
+            transactionId
+        });
+
         const instruction = new solanaWeb3.TransactionInstruction({
             keys: [
                 { pubkey: escrowPda, isSigner: false, isWritable: true },
