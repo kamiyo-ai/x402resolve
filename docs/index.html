@@ -1609,9 +1609,13 @@ pub mod x402_escrow {
                 if (errorMsg.includes('User rejected') || errorMsg.includes('rejected')) {
                     errorMsg = 'Transaction rejected by wallet';
                 } else if (errorMsg.includes('Attempt to debit') || errorMsg.includes('insufficient')) {
-                    errorMsg = 'Insufficient SOL balance - visit faucet.solana.com';
+                    errorMsg = 'Insufficient SOL balance - get devnet SOL at <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
                 } else if (errorMsg.includes('blockhash') || errorMsg.includes('timeout')) {
                     errorMsg = 'Network error, please try again';
+                } else if (errorMsg.includes('Custom:101') || errorMsg.includes('"Custom":101')) {
+                    errorMsg = 'Insufficient funds or account initialization failed - ensure your wallet has at least 0.1 SOL from <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
+                } else if (errorMsg.includes('Simulation failed')) {
+                    errorMsg = 'Transaction simulation failed - ' + errorMsg + '<br>Check console for details or get devnet SOL at <a href="https://faucet.solana.com" target="_blank" style="color: #ff44f5;">faucet.solana.com</a>';
                 }
                 showStatus(`Error: ${errorMsg}`, 'error');
                 btn.textContent = 'Try again';
