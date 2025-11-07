@@ -1219,7 +1219,10 @@ pub mod x402_escrow {
                         <div style="text-align: center; padding: 20px; color: #666;">
                             No recent oracle assessments found.<br>
                             <span style="display: block; margin-top: 10px; font-size: 0.85rem;">
-                                Connect your wallet and run the quality assessment below to create your first on-chain transaction!
+                                Connect your wallet and run the quality assessment below!
+                            </span>
+                            <span style="display: block; margin-top: 10px; font-size: 0.75rem; color: #555;">
+                                Note: Demo uses simulated transactions. Production requires deployed x402 program.
                             </span>
                         </div>
                     `;
@@ -1395,52 +1398,27 @@ pub mod x402_escrow {
             const apiPublicKey = window.oracleSystem.oracleKeypair.publicKey; // Using oracle as API for demo
 
             try {
-                // Step 1: Ensure reputation accounts exist
-                btn.textContent = 'Initializing Reputation Accounts...';
+                // Note: This is a simulation since the x402 program is not deployed
+                // In production, this would create real on-chain transactions
+
+                // Step 1: Simulate reputation account initialization
+                btn.textContent = 'Initializing reputation accounts...';
                 progressFill.style.width = '10%';
-
-                try {
-                    const agentRepInit = await window.oracleSystem.ensureReputationAccount(
-                        walletPublicKey,
-                        walletPublicKey
-                    );
-                    if (agentRepInit.transaction) {
-                        const sig1 = await window.oracleSystem.sendAndConfirm(agentRepInit.transaction, walletPublicKey);
-                        console.log('Agent reputation initialized:', sig1);
-                        await sleep(1000);
-                    }
-                } catch (e) {
-                    console.log('Agent reputation exists or error:', e.message);
-                }
-
-                try {
-                    const apiRepInit = await window.oracleSystem.ensureReputationAccount(
-                        apiPublicKey,
-                        walletPublicKey
-                    );
-                    if (apiRepInit.transaction) {
-                        const sig2 = await window.oracleSystem.sendAndConfirm(apiRepInit.transaction, walletPublicKey);
-                        console.log('API reputation initialized:', sig2);
-                        await sleep(1000);
-                    }
-                } catch (e) {
-                    console.log('API reputation exists or error:', e.message);
-                }
+                await sleep(1500);
+                console.log('Simulated: Reputation accounts initialized');
 
                 progressFill.style.width = '25%';
 
-                // Step 2: Create Escrow
+                // Step 2: Simulate escrow creation
                 btn.textContent = 'Creating escrow...';
-                const escrowTx = await window.oracleSystem.createEscrow(
-                    walletPublicKey,
-                    value,
-                    transactionId,
-                    apiPublicKey
-                );
-                const escrowSig = await window.oracleSystem.sendAndConfirm(escrowTx, walletPublicKey);
-                console.log('Escrow created:', escrowSig);
+                await sleep(1500);
 
-                showStatus(`Escrow created: ${escrowSig.substring(0, 8)}...`, 'success');
+                // Generate a simulated transaction signature
+                const escrowSig = 'sim_' + Array.from({length: 64}, () =>
+                    Math.floor(Math.random() * 16).toString(16)).join('');
+                console.log('Simulated escrow created:', escrowSig);
+
+                showStatus(`Simulated escrow created: ${escrowSig.substring(0, 12)}...`, 'success');
                 progressFill.style.width = '50%';
                 await sleep(2000);
 
@@ -1542,14 +1520,17 @@ pub mod x402_escrow {
                 progressFill.style.width = '80%';
                 await sleep(2000);
 
-                // Step 4: Resolve Dispute with Oracle Signature
+                // Step 4: Simulate dispute resolution
                 btn.textContent = 'Resolving dispute on-chain...';
                 progressFill.style.width = '90%';
-                const resolveTx = await window.oracleSystem.resolveDispute(transactionId, assessment);
-                const resolveSig = await window.oracleSystem.sendAndConfirm(resolveTx, walletPublicKey);
+                await sleep(1500);
 
-                console.log('Dispute resolved:', resolveSig);
-                showStatus(`Dispute resolved: ${resolveSig.substring(0, 8)}...`, 'success');
+                // Generate simulated resolution signature
+                const resolveSig = 'sim_' + Array.from({length: 64}, () =>
+                    Math.floor(Math.random() * 16).toString(16)).join('');
+
+                console.log('Simulated dispute resolved:', resolveSig);
+                showStatus(`Simulated dispute resolved: ${resolveSig.substring(0, 12)}...`, 'success');
                 progressFill.style.width = '100%';
 
                 // Show consensus result with real transaction link
@@ -1568,15 +1549,15 @@ pub mod x402_escrow {
                         <div class="alert alert-info" style="margin-top: 20px;">
                             <strong>${refundAmount} SOL Refund</strong><br>
                             ${assessment.refundPercentage}% of ${value} SOL escrow<br>
-                            <a href="https://explorer.solana.com/tx/${resolveSig}?cluster=devnet" target="_blank" style="color: #ff44f5; text-decoration: underline; margin-top: 10px; display: inline-block;">
-                                View Transaction on Explorer →
-                            </a>
+                            <div style="margin-top: 10px; font-size: 0.875rem; color: #888;">
+                                Simulated transaction: ${resolveSig.substring(0, 16)}...
+                            </div>
                         </div>
                     ` : `<div style="margin-top: 20px; font-size: 1.2rem;">
                         ✓ No refund needed (quality ≥ 80)<br>
-                        <a href="https://explorer.solana.com/tx/${resolveSig}?cluster=devnet" target="_blank" style="color: #ff44f5; text-decoration: underline; margin-top: 10px; display: inline-block;">
-                            View Transaction on Explorer →
-                        </a>
+                        <div style="margin-top: 10px; font-size: 0.875rem; color: #888;">
+                            Simulated transaction: ${resolveSig.substring(0, 16)}...
+                        </div>
                     </div>`}
                 `;
 
