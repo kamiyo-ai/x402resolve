@@ -163,19 +163,39 @@
             flex: 1;
             white-space: nowrap;
             margin-bottom: -1px;
+            position: relative;
         }
 
         .tab:hover {
             background: transparent;
             color: #fff;
-            border-bottom-color: #ff44f5;
+        }
+
+        .tab:hover::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff00ff, #00d9ff);
+            opacity: 0.6;
         }
 
         .tab.active {
             background: transparent;
             color: #fff;
             font-weight: 600;
-            border-bottom-color: #ff00ff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff00ff, #00d9ff);
         }
 
         .tab-content {
