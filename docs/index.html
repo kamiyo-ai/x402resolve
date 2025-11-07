@@ -1391,8 +1391,10 @@ pub mod x402_escrow {
             progressFill.style.width = '0%';
 
             const value = parseFloat(document.getElementById('oracleValue').value);
-            const transactionId = `oracle_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+            const transactionId = `tx_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
             const apiPublicKey = window.oracleSystem.oracleKeypair.publicKey; // Using oracle as API for demo
+
+            console.log('Creating escrow with transaction ID:', transactionId);
 
             try {
                 // Step 1: Ensure reputation accounts exist

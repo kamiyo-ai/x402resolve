@@ -283,18 +283,13 @@ class OracleTransactionSystem {
         const { pda: escrowPda } = this.deriveEscrowPDA(transactionId);
 
         // Check if escrow already exists
-        try {
-            const accountInfo = await this.connection.getAccountInfo(escrowPda);
-            if (accountInfo) {
-                throw new Error('Escrow already exists for this transaction ID');
-            }
-        } catch (e) {
-            if (!e.message.includes('already exists')) {
-                // Account doesn't exist, which is what we want
-            } else {
-                throw e;
-            }
+        const accountInfo = await this.connection.getAccountInfo(escrowPda);
+        if (accountInfo) {
+            console.warn('Escrow already exists for transaction ID:', transactionId);
+            throw new Error(`Escrow already exists for transaction ID: ${transactionId}`);
         }
+
+        console.log('Creating new escrow:', { transactionId, amount, escrowPda: escrowPda.toString() });
 
         const amountLamports = Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL);
         const timeLock = 86400; // 24 hours
@@ -502,7 +497,17 @@ class OracleTransactionSystem {
                 const simulation = await this.connection.simulateTransaction(transaction);
                 if (simulation.value.err) {
                     console.error('Pre-flight validation failed:', simulation.value);
-                    throw new Error(`Transaction validation failed: ${JSON.stringify(simulation.value.err)}`);
+
+                    // Try to decode Anchor error
+                    let errorMsg = JSON.stringify(simulation.value.err);
+                    if (simulation.value.err.InstructionError) {
+                        const [idx, err] = simulation.value.err.InstructionError;
+                        if (err.Custom === 1) {
+                            errorMsg = `Instruction ${idx}: Anchor error 0x1 (possibly ConstraintMut - account not writable, or account already initialized)`;
+                        }
+                    }
+
+                    throw new Error(`Transaction validation failed: ${errorMsg}`);
                 }
                 console.log('Pre-flight validation passed:', simulation.value);
             } catch (simError) {
