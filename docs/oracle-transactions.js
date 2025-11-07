@@ -231,7 +231,7 @@ class OracleTransactionSystem {
 
         // Build init_reputation instruction
         const discriminator = Buffer.from([
-            0x9a, 0x38, 0xd3, 0x7f, 0x5c, 0x8a, 0x3d, 0x2e  // init_reputation discriminator
+            236, 239, 233, 112, 220, 149, 26, 175  // init_reputation discriminator from IDL
         ]);
 
         const data = discriminator;
@@ -275,8 +275,8 @@ class OracleTransactionSystem {
         const amountLamports = Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL);
         const timeLock = 86400; // 24 hours
 
-        // Build initialize_escrow instruction (discriminator: 0x8b, 0x1e, 0x85, 0x7b, 0xf2, 0x4d, 0x9f, 0x3a)
-        const discriminator = Buffer.from([0x8b, 0x1e, 0x85, 0x7b, 0xf2, 0x4d, 0x9f, 0x3a]);
+        // Build initialize_escrow instruction
+        const discriminator = Buffer.from([243, 160, 77, 153, 11, 92, 48, 209]); // initialize_escrow discriminator from IDL
 
         const dataLayout = Buffer.alloc(1000); // Allocate enough space
         let offset = 0;
@@ -367,7 +367,7 @@ class OracleTransactionSystem {
         );
 
         // Build resolve_dispute instruction
-        const discriminator = Buffer.from([0x1f, 0x3a, 0xb5, 0x7c, 0x8d, 0x2e, 0x9f, 0x4a]);
+        const discriminator = Buffer.from([231, 6, 202, 6, 96, 103, 12, 230]); // resolve_dispute discriminator from IDL
 
         const dataLayout = Buffer.alloc(100);
         let offset = 0;
