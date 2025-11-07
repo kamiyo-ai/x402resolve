@@ -289,173 +289,23 @@
         .btn-magenta-outline {
             background: transparent !important;
             color: #fff !important;
-            border: none !important;
+            border: 1px solid #ff00ff !important;
             width: auto !important;
-            position: relative;
-            overflow: visible;
             padding: 12px 32px !important;
-            padding-left: 44px !important;
             text-transform: uppercase;
             font-size: 0.75rem;
-            letter-spacing: 0.15em;
-            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+            transition: all 0.2s ease;
             cursor: pointer;
         }
 
+        .btn-magenta-outline:hover:not(:disabled) {
+            border-color: #ff44f5 !important;
+        }
+
         .btn-magenta-outline:disabled {
-            opacity: 0.9;
-            cursor: default;
-        }
-
-        .btn-text {
-            position: relative;
-            z-index: 10;
-            transition: all 0.3s ease-out;
-        }
-
-        .btn-tunnel-ring {
-            position: absolute;
-            inset: 0;
-            border: 1px solid;
-            border-image: linear-gradient(to right, magenta, cyan) 1;
-            pointer-events: none;
-            transform: skewX(-45deg) translateX(16px);
-            transition: all 0.3s ease;
-        }
-
-        /* Base border - always visible, dotted */
-        .btn-tunnel-ring:nth-child(1) {
-            border-style: dotted;
-            opacity: 1;
-            transition: all 0.5s ease;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(1) {
-            opacity: 0;
-        }
-
-        .btn-magenta-outline:disabled .btn-tunnel-ring:nth-child(1) {
-            opacity: 0;
-        }
-
-        /* Ring 2 */
-        .btn-tunnel-ring:nth-child(2) {
-            border-style: dotted;
-            opacity: 0;
-            transform: skewX(-105deg) translateX(16px) rotate(85deg);
-            z-index: -1;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(2) {
-            animation: fadeOutExpand1 0.4s ease-out forwards;
-        }
-
-        /* Ring 3 */
-        .btn-tunnel-ring:nth-child(3) {
-            border-style: solid;
-            opacity: 0;
-            transform: skewX(-95deg) translateX(16px) rotate(15deg);
-            z-index: -1;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(3) {
-            animation: expandRotate 0.3s ease forwards;
-        }
-
-        /* Ring 4 */
-        .btn-tunnel-ring:nth-child(4) {
-            border-style: solid;
-            opacity: 0;
-            transform: skewX(-55deg) translateX(16px) rotate(25deg);
-            z-index: -2;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(4) {
-            animation: fadeOutExpand2 0.5s ease-out forwards;
-        }
-
-        /* Ring 5 - horizontal only */
-        .btn-tunnel-ring:nth-child(5) {
-            border-style: solid;
-            border-left: 0;
-            border-right: 0;
-            opacity: 0;
-            transform: skewX(-105deg) translateX(16px) rotate(35deg);
-            z-index: -3;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(5) {
-            animation: expandHorizontal 0.3s ease forwards;
-        }
-
-        /* Ring 6 */
-        .btn-tunnel-ring:nth-child(6) {
-            border-style: solid;
-            opacity: 0;
-            transform: skewX(-125deg) translateX(16px) rotate(45deg);
-            z-index: -4;
-        }
-
-        .btn-magenta-outline:hover:not(:disabled) .btn-tunnel-ring:nth-child(6) {
-            animation: fadeOutExpand3 0.9s ease-out forwards;
-        }
-
-        @keyframes fadeOutExpand1 {
-            0% {
-                transform: skewX(-105deg) translateX(16px) rotate(85deg);
-                opacity: 0;
-            }
-            30% { opacity: 0.6; }
-            100% {
-                transform: skewX(-65deg) translateX(16px) rotate(0deg) scale(2.2);
-                opacity: 0;
-            }
-        }
-
-        @keyframes fadeOutExpand2 {
-            0% {
-                transform: skewX(-55deg) translateX(16px) rotate(25deg);
-                opacity: 0;
-            }
-            30% { opacity: 0.6; }
-            100% {
-                transform: skewX(-65deg) translateX(16px) rotate(0deg) scale(1.5);
-                opacity: 0;
-            }
-        }
-
-        @keyframes fadeOutExpand3 {
-            0% {
-                transform: skewX(-125deg) translateX(16px) rotate(45deg);
-                opacity: 0;
-            }
-            30% { opacity: 0.6; }
-            100% {
-                transform: skewX(-15deg) translateX(16px) rotate(0deg) scale(1.8);
-                opacity: 0;
-            }
-        }
-
-        @keyframes expandRotate {
-            0% {
-                transform: skewX(-95deg) translateX(16px) rotate(15deg);
-                opacity: 0;
-            }
-            100% {
-                transform: skewX(55deg) translateX(16px) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        @keyframes expandHorizontal {
-            0% {
-                transform: skewX(-105deg) translateX(16px) rotate(35deg);
-                opacity: 0;
-            }
-            100% {
-                transform: skewX(-85deg) translateX(16px) rotate(0deg);
-                opacity: 1;
-            }
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         a {
@@ -916,15 +766,7 @@
                             <input type="number" id="escrowAmount" value="0.01" step="0.001" min="0.001" max="10">
                         </div>
 
-                        <button type="submit" id="submitBtn" class="btn-magenta-outline">
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-tunnel-ring"></span>
-                            <span class="btn-text">Submit to Solana devnet</span>
-                        </button>
+                        <button type="submit" id="submitBtn" class="btn-magenta-outline">Submit to Solana devnet</button>
                     </form>
                 </div>
 
@@ -1051,15 +893,7 @@
                     </p>
                 </div>
 
-                <button onclick="runMultiOracle()" id="oracleBtn" class="btn-magenta-outline">
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-tunnel-ring"></span>
-                    <span class="btn-text">Run on-chain quality assessment</span>
-                </button>
+                <button onclick="runMultiOracle()" id="oracleBtn" class="btn-magenta-outline">Run on-chain quality assessment</button>
                 <div id="oracleProgress" style="width: 100%; height: 3px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; display: none; position: relative;">
                     <div id="oracleProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff44f5, #00d9ff, #ff44f5); background-size: 200% 100%; animation: gradientFlow 2s linear infinite; transition: width 0.3s ease; position: relative;">
                         <div style="position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.3) 8px, rgba(0,0,0,0.3) 9px);"></div>
@@ -1414,59 +1248,6 @@ pub mod x402_escrow {
             }
         }
 
-        // Helper function to update button text (works with scramble buttons)
-        function setButtonText(btn, text) {
-            const textSpan = btn.querySelector('.btn-text');
-            if (textSpan) {
-                textSpan.textContent = text;
-            } else {
-                btn.textContent = text;
-            }
-        }
-
-        // Scramble text effect for buttons
-        function initScrambleButtons() {
-            const buttons = document.querySelectorAll('.btn-magenta-outline');
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-            buttons.forEach(btn => {
-                const textSpan = btn.querySelector('.btn-text');
-                if (!textSpan) return;
-
-                const originalText = textSpan.textContent;
-                let scrambleInterval;
-
-                btn.addEventListener('mouseenter', () => {
-                    if (btn.disabled) return;
-                    let progress = 0;
-
-                    clearInterval(scrambleInterval);
-                    scrambleInterval = setInterval(() => {
-                        if (progress >= originalText.length) {
-                            clearInterval(scrambleInterval);
-                            return;
-                        }
-
-                        textSpan.textContent = originalText
-                            .split('')
-                            .map((char, index) => {
-                                if (char === ' ') return ' ';
-                                if (index < progress) return originalText[index];
-                                return chars[Math.floor(Math.random() * chars.length)];
-                            })
-                            .join('');
-
-                        progress++;
-                    }, 30);
-                });
-
-                btn.addEventListener('mouseleave', () => {
-                    clearInterval(scrambleInterval);
-                    textSpan.textContent = originalText;
-                });
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             // Ensure oracle system is initialized
             if (!window.oracleSystem) {
@@ -1483,7 +1264,6 @@ pub mod x402_escrow {
             await checkOracleStatus();
             initializeCharts();
             highlightSyntax();
-            initScrambleButtons();
 
             // Load real on-chain data after a short delay
             setTimeout(loadRecentDisputeData, 2000);
@@ -1576,7 +1356,7 @@ pub mod x402_escrow {
             }
 
             btn.disabled = true;
-            setButtonText(btn, 'Creating escrow...');
+            btn.textContent = 'Creating escrow...';
 
             // Show and reset progress bar
             progressBar.style.display = 'block';
@@ -1588,7 +1368,7 @@ pub mod x402_escrow {
 
             try {
                 // Step 1: Ensure reputation accounts exist
-                setButtonText(btn, 'Initializing Reputation Accounts...');
+                btn.textContent = 'Initializing Reputation Accounts...';
                 progressFill.style.width = '10%';
 
                 try {
@@ -1622,7 +1402,7 @@ pub mod x402_escrow {
                 progressFill.style.width = '25%';
 
                 // Step 2: Create Escrow
-                setButtonText(btn, 'Creating escrow...');
+                btn.textContent = 'Creating escrow...';
                 const escrowTx = await window.oracleSystem.createEscrow(
                     walletPublicKey,
                     value,
@@ -1637,7 +1417,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 3: Generate Oracle Assessment
-                setButtonText(btn, 'Oracle Assessing Quality...');
+                btn.textContent = 'Oracle Assessing Quality...';
                 progressFill.style.width = '65%';
                 const assessment = await window.oracleSystem.generateQualityAssessment(transactionId);
 
@@ -1735,7 +1515,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 4: Resolve Dispute with Oracle Signature
-                setButtonText(btn, 'Resolving dispute on-chain...');
+                btn.textContent = 'Resolving dispute on-chain...';
                 progressFill.style.width = '90%';
                 const resolveTx = await window.oracleSystem.resolveDispute(transactionId, assessment);
                 const resolveSig = await window.oracleSystem.sendAndConfirm(resolveTx, walletPublicKey);
@@ -1773,7 +1553,7 @@ pub mod x402_escrow {
                 `;
 
                 document.getElementById('oracleResults').style.display = 'block';
-                setButtonText(btn, 'Run another assessment');
+                btn.textContent = 'Run another assessment';
                 btn.disabled = false;
 
                 // Hide progress bar after completion
@@ -1806,7 +1586,7 @@ pub mod x402_escrow {
                     errorMsg = 'Network error, please try again';
                 }
                 showStatus(`Error: ${errorMsg}`, 'error');
-                setButtonText(btn, 'Try again');
+                btn.textContent = 'Try again';
                 btn.disabled = false;
                 progressBar.style.display = 'none';
             }
@@ -1818,7 +1598,7 @@ pub mod x402_escrow {
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            setButtonText(btn, 'Submitting to Solana...');
+            btn.textContent = 'Submitting to Solana...';
 
             // Show timeline
             document.getElementById('statusDisplay').style.display = 'none';
@@ -1857,13 +1637,13 @@ pub mod x402_escrow {
                     transaction.feePayer = walletPublicKey;
 
                     // Sign and send transaction
-                    setButtonText(btn, 'Sign transaction in wallet...');
+                    btn.textContent = 'Sign transaction in wallet...';
                     const signed = await walletProvider.signAndSendTransaction(transaction);
                     txId = signed.signature || signed;
                     realTransaction = true;
 
                     // Wait for confirmation
-                    setButtonText(btn, 'Confirming transaction...');
+                    btn.textContent = 'Confirming transaction...';
                     await connection.confirmTransaction(txId);
 
                     document.getElementById('step1-detail').innerHTML = `
@@ -1901,7 +1681,7 @@ pub mod x402_escrow {
 
             // Step 2: Oracle analysis
             document.getElementById('step2').classList.add('active');
-            setButtonText(btn, 'Oracle Analyzing...');
+            btn.textContent = 'Oracle Analyzing...';
             await sleep(3000);
 
             // Calculate quality based on dispute reason
@@ -2001,7 +1781,7 @@ pub mod x402_escrow {
             `;
 
             document.getElementById('resultsDisplay').style.display = 'block';
-            setButtonText(btn, 'Dispute Resolved');
+            btn.textContent = 'Dispute Resolved';
         });
 
         function resetDispute() {
