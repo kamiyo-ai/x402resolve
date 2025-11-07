@@ -9,7 +9,7 @@
 const solanaWeb3 = require('@solana/web3.js');
 const nacl = require('tweetnacl');
 
-const PROGRAM_ID = new solanaWeb3.PublicKey('7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN');
+const PROGRAM_ID = new solanaWeb3.PublicKey('AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta');
 const RPC_URL = 'https://api.devnet.solana.com';
 const TEST_WALLET = '5PFae6U5UVBEzfmrWnkMpuMu6iifg915rkvZ1hk5vN1o';
 
@@ -30,8 +30,8 @@ const results = {
 };
 
 function logTest(name, passed, message) {
-    const status = passed ? 'PASS' : 'FAIL';
-    console.log(`[${status}] ${name}`);
+    const status = passed ? 'PASS: PASS' : 'FAIL: FAIL';
+    console.log(`${status} - ${name}`);
     if (message) console.log(`    ${message}`);
 
     results.tests.push({ name, passed, message });
@@ -44,7 +44,7 @@ function sleep(ms) {
 }
 
 async function testWalletBalance() {
-    console.log('\nTEST 1: Wallet Balance Check');
+    console.log('\n📊 TEST 1: Wallet Balance Check');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -56,7 +56,7 @@ async function testWalletBalance() {
         console.log(`Balance: ${solBalance} SOL`);
 
         if (balance < 0.5 * solanaWeb3.LAMPORTS_PER_SOL) {
-            console.log('\nLow balance detected. Requesting airdrop...');
+            console.log('\nWARNING: Low balance detected. Requesting airdrop...');
             try {
                 const airdropSig = await connection.requestAirdrop(pubkey, 2 * solanaWeb3.LAMPORTS_PER_SOL);
                 console.log(`Airdrop signature: ${airdropSig}`);
@@ -79,7 +79,7 @@ async function testWalletBalance() {
 }
 
 async function testProgramDeployment() {
-    console.log('\nTEST 2: Program Deployment Verification');
+    console.log('\n🔍 TEST 2: Program Deployment Verification');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -107,7 +107,7 @@ async function testProgramDeployment() {
 }
 
 async function testPDADerivation() {
-    console.log('\nTEST 3: PDA Derivation');
+    console.log('\n🔑 TEST 3: PDA Derivation');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -137,7 +137,7 @@ async function testPDADerivation() {
 }
 
 async function testEd25519Signature() {
-    console.log('\nTEST 4: Ed25519 Signature Generation');
+    console.log('\n🔐 TEST 4: Ed25519 Signature Generation');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -171,7 +171,7 @@ async function testEd25519Signature() {
 }
 
 async function testRPCConnection() {
-    console.log('\nTEST 5: RPC Connection Health');
+    console.log('\n🌐 TEST 5: RPC Connection Health');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -193,7 +193,7 @@ async function testRPCConnection() {
 }
 
 async function testInstructionEncoding() {
-    console.log('\nTEST 6: Instruction Encoding');
+    console.log('\n📦 TEST 6: Instruction Encoding');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -297,7 +297,7 @@ async function testTransactionSerialization() {
 }
 
 async function testRefundCalculation() {
-    console.log('\nTEST 8: Refund Calculation Logic');
+    console.log('\n🧮 TEST 8: Refund Calculation Logic');
     console.log('═══════════════════════════════════════════════════════');
 
     try {
@@ -316,7 +316,7 @@ async function testRefundCalculation() {
                           test.score < 80 ? Math.round((80 - test.score) / 80 * 100) : 0;
 
             const passed = actual === test.expected;
-            console.log(`Quality ${test.score}/100 → ${actual}% refund (expected ${test.expected}%) [${passed ? 'OK' : 'FAIL'}]`);
+            console.log(`Quality ${test.score}/100 → ${actual}% refund (expected ${test.expected}%) ${passed ? 'OK' : 'FAIL'}`);
 
             if (!passed) allPassed = false;
         }
@@ -352,7 +352,7 @@ async function runFullTestSuite() {
         await testRefundCalculation();
 
     } catch (error) {
-        console.error('\nCritical test failure:', error);
+        console.error('\n💥 Critical test failure:', error);
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -362,16 +362,16 @@ async function runFullTestSuite() {
     console.log('                    TEST SUMMARY                        ');
     console.log('═══════════════════════════════════════════════════════');
     console.log(`Total tests: ${results.passed + results.failed}`);
-    console.log(`Passed: ${results.passed}`);
-    console.log(`Failed: ${results.failed}`);
+    console.log(`PASS: Passed: ${results.passed}`);
+    console.log(`FAIL: Failed: ${results.failed}`);
     console.log(`Duration: ${duration}s`);
     console.log('═══════════════════════════════════════════════════════');
 
     if (results.failed === 0) {
-        console.log('\nALL TESTS PASSED - PRODUCTION READY\n');
+        console.log('\nALL TESTS PASSED - PRODUCTION READY 🎉\n');
         return true;
     } else {
-        console.log('\nSOME TESTS FAILED - REVIEW REQUIRED\n');
+        console.log('\nWARNING: SOME TESTS FAILED - REVIEW REQUIRED ⚠️\n');
         console.log('Failed tests:');
         results.tests.filter(t => !t.passed).forEach(t => {
             console.log(`  - ${t.name}: ${t.message}`);

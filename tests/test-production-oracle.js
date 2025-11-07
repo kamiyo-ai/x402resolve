@@ -77,7 +77,7 @@ var anchor = __importStar(require("@coral-xyz/anchor"));
 var web3_js_1 = require("@solana/web3.js");
 var fs = __importStar(require("fs"));
 var nacl = __importStar(require("tweetnacl"));
-var PROGRAM_ID = new web3_js_1.PublicKey('7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN');
+var PROGRAM_ID = new web3_js_1.PublicKey('AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta');
 var RPC_URL = 'https://api.devnet.solana.com';
 // Load IDL
 var idlPath = './packages/x402-sdk/types/x402_escrow.json';
