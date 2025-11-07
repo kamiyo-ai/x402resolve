@@ -460,6 +460,19 @@ class OracleTransactionSystem {
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet;
 
+            // Simulate transaction first to catch errors
+            try {
+                const simulation = await this.connection.simulateTransaction(transaction);
+                if (simulation.value.err) {
+                    console.error('Transaction simulation failed:', simulation.value);
+                    throw new Error(`Simulation failed: ${JSON.stringify(simulation.value.err)}`);
+                }
+                console.log('Transaction simulation successful:', simulation.value);
+            } catch (simError) {
+                console.error('Simulation error:', simError);
+                throw simError;
+            }
+
             // Use signAndSendTransaction for better Phantom compatibility
             if (window.solana && window.solana.signAndSendTransaction) {
                 const { signature } = await window.solana.signAndSendTransaction(transaction);
