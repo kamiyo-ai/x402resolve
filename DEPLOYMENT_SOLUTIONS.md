@@ -15,7 +15,7 @@ curl https://raw.githubusercontent.com/kamiyo-ai/x402resolve/main/docs/oracle-tr
 # Returns: ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY ✅
 
 # GitHub Pages CDN (STALE)
-curl https://x402kamiyo.github.io/x402resolve/oracle-transactions.js | grep PROGRAM_ID
+curl https://x402resolve.kamiyo.aioracle-transactions.js | grep PROGRAM_ID
 # Returns: AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta ❌
 
 # CDN Cache Headers

@@ -16,7 +16,7 @@ curl https://raw.githubusercontent.com/kamiyo-ai/x402resolve/main/docs/oracle-tr
 
 **GitHub Pages CDN - STALE** ❌
 ```bash
-curl https://x402kamiyo.github.io/x402resolve/oracle-transactions.js | grep PROGRAM_ID
+curl https://x402resolve.kamiyo.aioracle-transactions.js | grep PROGRAM_ID
 # Returns: AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta (OLD)
 ```
 
@@ -34,7 +34,7 @@ The `x-origin-cache: HIT` header confirms CDN is serving cached content from Nov
 **Critical Finding**: New files are returning 404, indicating GitHub Pages workflow may not be deploying at all.
 
 ```bash
-curl -I https://x402kamiyo.github.io/x402resolve/oracle-transactions-1762621826.js
+curl -I https://x402resolve.kamiyo.aioracle-transactions-1762621826.js
 # Returns: HTTP/2 404
 ```
 
@@ -125,7 +125,7 @@ The CDN cache will eventually expire. Based on the `last-modified` header, typic
 # Check every hour if CDN has updated
 while true; do
   echo "$(date): Checking CDN..."
-  curl -s "https://x402kamiyo.github.io/x402resolve/oracle-transactions.js" | grep "PROGRAM_ID" | head -1
+  curl -s "https://x402resolve.kamiyo.aioracle-transactions.js" | grep "PROGRAM_ID" | head -1
   sleep 3600
 done
 ```
@@ -177,7 +177,7 @@ JavaScript: oracle-transactions.js has ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dg
 
 **CDN Status** ❌
 ```
-URL: https://x402kamiyo.github.io/x402resolve/
+URL: https://x402resolve.kamiyo.ai
 Status: Serving stale cache from 2025-11-07
 Program ID: AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta (OLD)
 ```
@@ -188,11 +188,11 @@ Once the CDN serves the new files (check with the monitoring command above), ver
 
 ```bash
 # 1. Check program ID
-curl -s "https://x402kamiyo.github.io/x402resolve/oracle-transactions.js" | grep "PROGRAM_ID"
+curl -s "https://x402resolve.kamiyo.aioracle-transactions.js" | grep "PROGRAM_ID"
 # Should show: ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY
 
 # 2. Test demo page
-open "https://x402kamiyo.github.io/x402resolve/"
+open "https://x402resolve.kamiyo.ai"
 # Create escrow, file dispute, verify no "Transfer: 'from' must not carry data" error
 
 # 3. Verify on-chain transaction

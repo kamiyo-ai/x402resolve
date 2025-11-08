@@ -32,12 +32,12 @@ All local files in `/workspaces/resolvex402program/docs/` contain correct progra
 ## Current Issue: GitHub Pages CDN Cache
 
 ### Problem
-GitHub Pages at https://x402kamiyo.github.io/x402resolve/ continues to invoke old program ID `AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta` despite multiple deployments.
+GitHub Pages at https://x402resolve.kamiyo.ai continues to invoke old program ID `AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta` despite multiple deployments.
 
 ### Verification
 ```bash
 # CDN is serving OLD cached file
-curl https://x402kamiyo.github.io/x402resolve/oracle-transactions.js | grep PROGRAM_ID
+curl https://x402resolve.kamiyo.aioracle-transactions.js | grep PROGRAM_ID
 # Returns: 'AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta'
 
 # Repository has CORRECT file
@@ -95,7 +95,7 @@ const PROGRAM_ID = 'ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY';
 
 ### GitHub Pages CDN (Stale)
 ```javascript
-// https://x402kamiyo.github.io/x402resolve/oracle-transactions.js
+// https://x402resolve.kamiyo.aioracle-transactions.js
 const PROGRAM_ID = 'AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta';
 ```
 
@@ -155,7 +155,7 @@ Generate unique filename on each deployment (e.g., `oracle-transactions-20251108
 
 ## Verification Steps
 
-Once CDN updates (check https://x402kamiyo.github.io/x402resolve/oracle-transactions-v3.js):
+Once CDN updates (check https://x402resolve.kamiyo.aioracle-transactions-v3.js):
 
 1. Hard refresh demo page (Ctrl+Shift+R)
 2. Open DevTools Console
