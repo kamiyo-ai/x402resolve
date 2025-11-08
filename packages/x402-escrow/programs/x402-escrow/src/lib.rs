@@ -10,7 +10,7 @@ use anchor_lang::solana_program::{
 };
 use switchboard_on_demand::on_demand::accounts::pull_feed::PullFeedAccountData;
 
-declare_id!("AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta");
+declare_id!("824XkRJ2TDQkqtWwU6YC4BKNq6bRGEikR48sdvHWAk5A");
 
 // Validation constants
 const MIN_TIME_LOCK: i64 = 3600;                    // 1 hour
