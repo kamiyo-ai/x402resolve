@@ -559,7 +559,7 @@ class OracleTransactionSystem {
                             if (err.Custom !== undefined) {
                                 const errorCode = err.Custom;
                                 const anchorErrors = {
-                                    1: 'Anchor constraint violation (account not writable or already initialized)',
+                                    1: 'Escrow account already exists for this transaction ID. Please refresh the page and try again with a new transaction.',
                                     100: 'InvalidAmount',
                                     101: 'AmountTooLarge',
                                     102: 'InvalidTimeLock',
