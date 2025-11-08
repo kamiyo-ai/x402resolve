@@ -65,7 +65,7 @@ async function quickStart() {
     assessment.attestation
   );
 
-  console.log('✅ Dispute resolved via Switchboard!');
+  console.log('[PASS] Dispute resolved via Switchboard!');
   console.log(`Refund: ${assessment.refundPercentage}%`);
 }
 

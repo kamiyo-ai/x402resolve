@@ -1,27 +1,21 @@
-# Contributing to x402Resolve
-
-Thank you for your interest in contributing to x402Resolve! This document provides guidelines and instructions for contributing.
+# Contributing
 
 ## Code of Conduct
 
-We are committed to providing a welcoming and inclusive environment for all contributors. Please:
-
-- Be respectful and constructive in discussions
-- Welcome newcomers and help them get started
-- Focus on what is best for the community and the project
-- Show empathy towards other community members
+- Respectful, constructive discussion
+- Assist newcomers
+- Focus on project goals
+- Professional conduct
 
 ## Getting Started
 
 ### Prerequisites
 
-Before contributing, ensure you have:
-
 - Node.js 18+
 - Python 3.9+
-- Rust + Anchor CLI (for Solana program development)
-- Solana CLI tools
-- Git for version control
+- Rust + Anchor CLI
+- Solana CLI
+- Git
 
 ### Development Setup
 
@@ -57,20 +51,17 @@ Before contributing, ensure you have:
 
 ### Reporting Bugs
 
-Before creating a bug report:
+Before filing:
+1. Check existing issues
+2. Collect: OS, versions, error messages
+3. Create minimal reproduction
 
-1. Check existing issues to avoid duplicates
-2. Collect relevant information (OS, versions, error messages)
-3. Create a minimal reproducible example if possible
-
-When filing a bug report, include:
-
-- Clear, descriptive title
-- Detailed description of the issue
+Include:
+- Descriptive title
 - Steps to reproduce
 - Expected vs actual behavior
-- Environment details (OS, Node version, etc.)
-- Screenshots or error logs if applicable
+- Environment: OS, Node version
+- Error logs/screenshots
 
 ### Suggesting Enhancements
 

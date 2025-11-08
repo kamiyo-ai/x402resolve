@@ -10,7 +10,7 @@ use anchor_lang::solana_program::{
 };
 use switchboard_on_demand::on_demand::accounts::pull_feed::PullFeedAccountData;
 
-declare_id!("7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN");
+declare_id!("ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY");
 
 // Validation constants
 const MIN_TIME_LOCK: i64 = 3600;                    // 1 hour
@@ -340,48 +340,18 @@ pub mod x402_escrow {
         msg!("Refund to Agent: {} SOL", refund_amount as f64 / 1_000_000_000.0);
         msg!("Payment to API: {} SOL", payment_amount as f64 / 1_000_000_000.0);
 
-        // Copy values needed for PDA signing
-        let transaction_id = escrow.transaction_id.clone();
-        let bump = escrow.bump;
-
         // Transfer refund to agent
+        // Note: Using direct lamport manipulation instead of system_program::transfer
+        // because escrow PDA contains data and system transfer requires empty accounts
         if refund_amount > 0 {
-            let seeds = &[
-                b"escrow",
-                transaction_id.as_bytes(),
-                &[bump],
-            ];
-            let signer = &[&seeds[..]];
-
-            let cpi_context = CpiContext::new_with_signer(
-                ctx.accounts.system_program.to_account_info(),
-                anchor_lang::system_program::Transfer {
-                    from: ctx.accounts.escrow.to_account_info(),
-                    to: ctx.accounts.agent.to_account_info(),
-                },
-                signer,
-            );
-            anchor_lang::system_program::transfer(cpi_context, refund_amount)?;
+            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= refund_amount;
+            **ctx.accounts.agent.to_account_info().try_borrow_mut_lamports()? += refund_amount;
         }
 
         // Transfer payment to API
         if payment_amount > 0 {
-            let seeds = &[
-                b"escrow",
-                transaction_id.as_bytes(),
-                &[bump],
-            ];
-            let signer = &[&seeds[..]];
-
-            let cpi_context = CpiContext::new_with_signer(
-                ctx.accounts.system_program.to_account_info(),
-                anchor_lang::system_program::Transfer {
-                    from: ctx.accounts.escrow.to_account_info(),
-                    to: ctx.accounts.api.to_account_info(),
-                },
-                signer,
-            );
-            anchor_lang::system_program::transfer(cpi_context, payment_amount)?;
+            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= payment_amount;
+            **ctx.accounts.api.to_account_info().try_borrow_mut_lamports()? += payment_amount;
         }
 
         let escrow = &mut ctx.accounts.escrow;
@@ -528,48 +498,18 @@ pub mod x402_escrow {
         msg!("Refund to Agent: {} SOL", refund_amount as f64 / 1_000_000_000.0);
         msg!("Payment to API: {} SOL", payment_amount as f64 / 1_000_000_000.0);
 
-        // Copy values needed for PDA signing
-        let transaction_id = escrow.transaction_id.clone();
-        let bump = escrow.bump;
-
         // Transfer refund to agent
+        // Note: Using direct lamport manipulation instead of system_program::transfer
+        // because escrow PDA contains data and system transfer requires empty accounts
         if refund_amount > 0 {
-            let seeds = &[
-                b"escrow",
-                transaction_id.as_bytes(),
-                &[bump],
-            ];
-            let signer = &[&seeds[..]];
-
-            let cpi_context = CpiContext::new_with_signer(
-                ctx.accounts.system_program.to_account_info(),
-                anchor_lang::system_program::Transfer {
-                    from: ctx.accounts.escrow.to_account_info(),
-                    to: ctx.accounts.agent.to_account_info(),
-                },
-                signer,
-            );
-            anchor_lang::system_program::transfer(cpi_context, refund_amount)?;
+            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= refund_amount;
+            **ctx.accounts.agent.to_account_info().try_borrow_mut_lamports()? += refund_amount;
         }
 
         // Transfer payment to API
         if payment_amount > 0 {
-            let seeds = &[
-                b"escrow",
-                transaction_id.as_bytes(),
-                &[bump],
-            ];
-            let signer = &[&seeds[..]];
-
-            let cpi_context = CpiContext::new_with_signer(
-                ctx.accounts.system_program.to_account_info(),
-                anchor_lang::system_program::Transfer {
-                    from: ctx.accounts.escrow.to_account_info(),
-                    to: ctx.accounts.api.to_account_info(),
-                },
-                signer,
-            );
-            anchor_lang::system_program::transfer(cpi_context, payment_amount)?;
+            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= payment_amount;
+            **ctx.accounts.api.to_account_info().try_borrow_mut_lamports()? += payment_amount;
         }
 
         let escrow = &mut ctx.accounts.escrow;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>x402Resolve - Live Demo | Solana x402 Hackathon 2025</title>
+    <title>x402Resolve - LOCALNET Demo | Solana x402 Hackathon 2025</title>
     <meta name="description" content="Live demo of x402Resolve escrow system on Solana devnet">
     <link rel="icon" type="image/x-icon" href="./media/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
-    <script src="./oracle-transactions.js?v=3&t=1762609600000" defer></script>
+    <script src="./oracle-transactions-local.js" defer></script>
     <style>
         * {
             margin: 0;
@@ -434,17 +434,17 @@
         }
 
         .timeline-dot {
-            width: 8px;
-            height: 8px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #333;
             flex-shrink: 0;
-            margin-top: 6px;
+            margin-top: 3px;
         }
 
         .timeline-item.active .timeline-dot {
-            background: linear-gradient(90deg, #4fe9ea, #ff44f5);
-            box-shadow: 0 0 0 2px rgba(79, 233, 234, 0.15);
+            background: #00d9ff;
+            box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.2);
         }
 
         .gradient-text {
@@ -1778,33 +1778,33 @@ pub mod x402_escrow {
                     <strong>✅ Dispute Resolved!</strong> Quality verification complete.
                 </div>
 
-                <div style="background: #0a0a0a; padding: 30px 20px; border-radius: 8px; border: 1px solid #222;">
-                    <h3 style="margin-bottom: 15px; font-size: 1rem; color: #888;">Quality Assessment</h3>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0;">
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Overall</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${qualityScore}</div>
+                <div style="background: #000; padding: 20px; border-radius: 8px; border: 1px solid #222;">
+                    <h3 style="margin-bottom: 15px;">Quality Assessment</h3>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.85rem; color: #999;">Overall</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: ${qualityScore >= 80 ? '#00d9ff' : qualityScore >= 50 ? '#f59e0b' : '#ef4444'};">${qualityScore}</div>
                         </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Semantic</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.semantic * 100)}</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.85rem; color: #999;">Semantic</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #00d9ff;">${Math.round(score.semantic * 100)}</div>
                         </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Complete</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.completeness * 100)}</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.85rem; color: #999;">Complete</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #00d9ff;">${Math.round(score.completeness * 100)}</div>
                         </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Fresh</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.freshness * 100)}</div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.85rem; color: #999;">Fresh</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #00d9ff;">${Math.round(score.freshness * 100)}</div>
                         </div>
                     </div>
                 </div>
 
                 ${refundPct > 0 ? `
-                    <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; text-align: center; margin-top: 20px; border: 1px solid #222;">
-                        <div style="font-size: 0.875rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Refund Processed</div>
-                        <div class="gradient-text" style="font-size: 3rem; font-weight: 300; margin: 20px 0;">${refundAmount} SOL</div>
-                        <div style="font-size: 1rem; color: #888; margin-bottom: 10px;">${refundPct}% of ${escrowAmount} SOL escrow</div>
+                    <div style="background: #000; padding: 30px; border-radius: 12px; text-align: center; margin-top: 20px; border: 2px solid #00d9ff;">
+                        <div style="font-size: 1.2rem; color: #00d9ff;">Refund Processed</div>
+                        <div style="font-size: 3rem; font-weight: bold; margin: 15px 0; color: #fff;">${refundAmount} SOL</div>
+                        <div style="font-size: 1.1rem; color: #ccc;">${refundPct}% of ${escrowAmount} SOL escrow</div>
                         <div style="margin-top: 15px; padding: 10px; background: #0a0a0a; border-radius: 8px; font-size: 0.9rem; font-family: monospace; color: #999;">
                             ${realTransaction ?
                                 `Solana TX: ${txId.substring(0, 8)}...${txId.substring(txId.length - 8)}` :
@@ -1819,9 +1819,9 @@ pub mod x402_escrow {
                         ` : ''}
                     </div>
                 ` : `
-                    <div style="text-align: center; padding: 40px 30px; background: #0a0a0a; border-radius: 8px; margin-top: 20px; border: 1px solid #222;">
-                        <div style="font-size: 0.875rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">No Refund Needed</div>
-                        <p style="color: #888; font-size: 1rem; margin: 10px 0;">Data quality meets standards (score ≥ 80)</p>
+                    <div style="text-align: center; padding: 30px; background: #000; border-radius: 12px; margin-top: 20px; border: 2px solid #00d9ff;">
+                        <h3 style="color: #00d9ff; margin-bottom: 10px; font-size: 1.5rem;">No Refund Needed</h3>
+                        <p style="color: #ccc; font-size: 1.1rem;">Data quality meets standards (score ≥ 80)</p>
                         ${realTransaction ? `
                             <div style="margin-top: 15px; padding: 10px; background: #0a0a0a; border-radius: 8px; font-size: 0.9rem; font-family: monospace; color: #999;">
                                 Solana TX: ${txId.substring(0, 8)}...${txId.substring(txId.length - 8)}

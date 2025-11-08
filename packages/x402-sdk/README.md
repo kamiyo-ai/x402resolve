@@ -1,21 +1,21 @@
 # @kamiyo/x402-sdk
 
-TypeScript SDK for **x402Resolve** - Automated AI agent payment and dispute resolution.
+TypeScript SDK for x402Resolve - Automated payment and dispute resolution for AI agents.
 
 ## What is x402Resolve?
 
-x402Resolve extends HTTP 402 Payment Required with automated conflict resolution for AI agents. When an agent pays for data and receives poor quality, it can dispute the payment programmatically and get an instant, fair refund based on objective quality metrics.
+HTTP 402 implementation with automated conflict resolution. Agents dispute poor quality data programmatically and receive refunds based on objective quality metrics.
 
-**No human intervention. No chargebacks. Resolution in seconds.**
+Automated resolution in seconds with no manual intervention.
 
 ## Features
 
--  **Escrow Payments** - Funds held until quality verified
--  **Automated Disputes** - File disputes programmatically
--  **Quality Scoring** - AI-powered data quality assessment
--  **Instant Refunds** - Partial/full refunds based on quality score
--  **Solana Native** - Built on Solana for speed and low cost
--  **TypeScript** - Full type safety
+- Escrow payments with quality verification
+- Programmatic dispute filing
+- AI-powered quality scoring
+- Instant proportional refunds (0-100%)
+- Solana native (low cost, high speed)
+- Full TypeScript type safety
 
 ## Installation
 

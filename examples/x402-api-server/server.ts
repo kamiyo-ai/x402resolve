@@ -468,7 +468,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🔒 KAMIYO x402 Security Intelligence API`);
+  console.log(`\nKAMIYO x402 Security Intelligence API`);
   console.log(`   http://localhost:${PORT}\n`);
   console.log(`   Solana Network: devnet`);
   console.log(`   Program ID: ${ESCROW_PROGRAM_ID.toString()}\n`);
@@ -481,8 +481,8 @@ app.listen(PORT, () => {
   console.log(`   GET  /`);
   console.log(`   GET  /health`);
   console.log(`   GET  /x402/pricing\n`);
-  console.log(`   💰 Payment: 0.0001 SOL ($0.01 USDC) per query`);
-  console.log(`   ✅ Quality guarantee: Automatic refunds if quality < 80%`);
-  console.log(`   ⚡ Detection time: 5-15 minutes from first report`);
-  console.log(`   🌐 Coverage: 15+ chains, 20+ sources, $2.1B+ tracked\n`);
+  console.log(`   Payment: 0.0001 SOL ($0.01 USDC) per query`);
+  console.log(`   Quality guarantee: Automatic refunds if quality < 80%`);
+  console.log(`   Detection time: 5-15 minutes from first report`);
+  console.log(`   Coverage: 15+ chains, 20+ sources, $2.1B+ tracked\n`);
 });

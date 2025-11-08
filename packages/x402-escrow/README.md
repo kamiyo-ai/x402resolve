@@ -4,16 +4,16 @@ Solana smart contract for automated dispute resolution in AI agent payments.
 
 ## Overview
 
-The x402 Escrow Program holds payments in escrow with time-lock and enables automated refunds based on programmatic quality assessment from the x402 Verifier Oracle.
+Time-locked PDA escrow with automated refunds based on oracle quality assessment.
 
 ## Features
 
--  **Time-Locked Escrow** - Payments held for dispute period (e.g., 24 hours)
--  **Auto-Release** - Funds automatically released to API after time-lock
--  **Dispute Resolution** - Agent can dispute and get instant refund
--  **Verifier Signatures** - Oracle signatures validated on-chain
--  **Sliding Scale Refunds** - Partial refunds based on quality score (0-100%)
--  **PDA-Based** - Secure escrow accounts using Program Derived Addresses
+- Time-locked escrow (configurable dispute period)
+- Auto-release after time-lock expires
+- Instant dispute resolution with proportional refunds
+- On-chain Ed25519 signature verification
+- Quality-based refund scaling (0-100%)
+- PDA accounts (no admin keys)
 
 ## Architecture
 

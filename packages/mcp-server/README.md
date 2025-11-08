@@ -1,8 +1,8 @@
 # KAMIYO MCP Server
 
-Model Context Protocol server for AI agents to access crypto exploit intelligence with automated dispute resolution.
+MCP server providing crypto exploit intelligence and automated dispute resolution for AI agents.
 
-## Quick Start (2 minutes)
+## Quick Start
 
 ```bash
 # 1. Install dependencies
@@ -26,15 +26,15 @@ pip install -r requirements.txt
 
 ## Overview
 
-Provides AI agents (Claude Desktop, etc.) access to KAMIYO's exploit database ($2.1B+ tracked) with x402Resolve integration for automated quality disputes.
+AI agent access to KAMIYO exploit database ($2.1B+ tracked) with x402Resolve automated dispute resolution.
 
 **Features**:
-- 5 production MCP tools
-- Automated dispute filing for poor data quality
-- Tiered access control (Free/Personal/Team/Enterprise)
-- stdio and SSE transport support
+- 5 MCP tools
+- Automated dispute filing
+- Tiered access: Free/Personal/Team/Enterprise
+- stdio/SSE transport
 - JWT authentication
-- Rate limiting per subscription tier
+- Rate limiting
 
 ## Installation
 

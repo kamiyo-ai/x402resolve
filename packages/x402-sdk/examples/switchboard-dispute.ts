@@ -139,7 +139,7 @@ async function main() {
   console.log('  Quality Score:', escrow.qualityScore);
   console.log('  Refund %:', escrow.refundPercentage);
 
-  console.log('\n✅ Switchboard dispute resolution completed successfully!');
+  console.log('\n[PASS] Switchboard dispute resolution completed successfully!');
   console.log('Cost: ~$0.005 (Switchboard oracle fee)');
   console.log('Trustlessness: 99% (decentralized oracle network)');
 }
@@ -176,7 +176,7 @@ async function comparePythonVsSwitchboard() {
     // Switchboard assessment would be done here
     console.log('  Switchboard: [Call oracle...]');
     console.log('  Python: [Call API...]');
-    console.log('  Refund match: ✅ (95% identical outcomes)\n');
+    console.log('  Refund match: [OK] (95% identical outcomes)\n');
   }
 }
 

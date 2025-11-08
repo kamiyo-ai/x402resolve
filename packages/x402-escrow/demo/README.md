@@ -1,26 +1,22 @@
 # x402Resolve Escrow Demo
 
-Interactive demo showcasing the full escrow lifecycle with dispute resolution.
+Interactive demonstration of full escrow lifecycle with dispute resolution.
 
-## Prerequisites
+## Setup
 
 ```bash
-# Install dependencies
-cd /workspaces/x402resolve/packages/x402-escrow
+cd packages/x402-escrow
 npm install
 
-# Ensure program is deployed
+# Verify program deployed
 solana program show AFmBBw7kbrnwhhzYadAMCMh4BBBZcZdS3P7Z6vpsqsSR --url devnet
 ```
 
-## Running the Demo
+## Run
 
 ```bash
-# Set up Anchor environment
 export ANCHOR_PROVIDER_URL=https://api.devnet.solana.com
 export ANCHOR_WALLET=~/.config/solana/id.json
-
-# Run demo
 ts-node demo/demo-interaction.ts
 ```
 
@@ -57,22 +53,20 @@ ts-node demo/demo-interaction.ts
 2. After 60 seconds, anyone can release funds to API
 3. Demonstrates auto-release mechanism
 
-## Key Features Demonstrated
+## Features Demonstrated
 
--  Input validation (amounts, time locks, transaction IDs)
--  PDA-based escrow accounts
--  Sliding scale refunds (0-100%)
--  Dispute window enforcement
--  Event emissions
--  Time-lock mechanism
+- Input validation (amounts, time locks, IDs)
+- PDA escrow accounts
+- Proportional refunds (0-100%)
+- Dispute window enforcement
+- Event emissions
+- Time-lock mechanism
 
-## Validation Examples
+## Validation
 
-The demo will fail if:
-- Amount < 0.001 SOL (too small)
-- Amount > 1000 SOL (too large)
-- Time lock < 1 hour
-- Time lock > 30 days
+Fails if:
+- Amount < 0.001 SOL or > 1000 SOL
+- Time lock < 1 hour or > 30 days
 - Transaction ID empty or > 64 chars
 - Dispute after time lock expires
 

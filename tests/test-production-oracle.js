@@ -77,7 +77,7 @@ var anchor = __importStar(require("@coral-xyz/anchor"));
 var web3_js_1 = require("@solana/web3.js");
 var fs = __importStar(require("fs"));
 var nacl = __importStar(require("tweetnacl"));
-var PROGRAM_ID = new web3_js_1.PublicKey('7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN');
+var PROGRAM_ID = new web3_js_1.PublicKey('824XkRJ2TDQkqtWwU6YC4BKNq6bRGEikR48sdvHWAk5A');
 var RPC_URL = 'https://api.devnet.solana.com';
 // Load IDL
 var idlPath = './packages/x402-sdk/types/x402_escrow.json';
@@ -94,18 +94,18 @@ function main() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log('🚀 x402Resolve Production Oracle Test\n');
+                    console.log('x402Resolve Production Oracle Test\n');
                     connection = new web3_js_1.Connection(RPC_URL, 'confirmed');
                     keypairPath = './test-agent-keypair.json';
                     if (fs.existsSync(keypairPath)) {
                         keypairData = JSON.parse(fs.readFileSync(keypairPath, 'utf-8'));
                         agentKeypair = web3_js_1.Keypair.fromSecretKey(new Uint8Array(keypairData));
-                        console.log('✓ Loaded existing agent keypair');
+                        console.log('[OK] Loaded existing agent keypair');
                     }
                     else {
                         agentKeypair = web3_js_1.Keypair.generate();
                         fs.writeFileSync(keypairPath, JSON.stringify(Array.from(agentKeypair.secretKey)));
-                        console.log('✓ Generated new agent keypair');
+                        console.log('[OK] Generated new agent keypair');
                     }
                     console.log("Agent: ".concat(agentKeypair.publicKey.toString()));
                     console.log("Oracle: ".concat(oracleKeypair.publicKey.toString(), "\n"));
@@ -114,7 +114,7 @@ function main() {
                     agentBalance = _a.sent();
                     console.log("Agent balance: ".concat(agentBalance / web3_js_1.LAMPORTS_PER_SOL, " SOL"));
                     if (!(agentBalance < 0.1 * web3_js_1.LAMPORTS_PER_SOL)) return [3 /*break*/, 6];
-                    console.log('\n⚠️  Low balance! Requesting airdrop...');
+                    console.log('\nWarning: Low balance! Requesting airdrop...');
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 5, , 6]);
@@ -124,11 +124,11 @@ function main() {
                     return [4 /*yield*/, connection.confirmTransaction(airdropSig)];
                 case 4:
                     _a.sent();
-                    console.log('✓ Airdrop successful');
+                    console.log('[OK] Airdrop successful');
                     return [3 /*break*/, 6];
                 case 5:
                     e_1 = _a.sent();
-                    console.error('❌ Airdrop failed:', e_1.message);
+                    console.error('[FAILED] Airdrop failed:', e_1.message);
                     console.log('Please manually fund the agent wallet with devnet SOL');
                     return [2 /*return*/];
                 case 6:
@@ -137,37 +137,37 @@ function main() {
                         commitment: 'confirmed'
                     });
                     program = new anchor.Program(idl, PROGRAM_ID, provider);
-                    console.log('\n📝 Running Production Test Flow\n');
+                    console.log('\nRunning Production Test Flow\n');
                     // Step 1: Initialize reputation accounts
-                    console.log('1️⃣  Initializing reputation accounts...');
+                    console.log('Step 1: Initializing reputation accounts...');
                     _a.label = 7;
                 case 7:
                     _a.trys.push([7, 9, , 10]);
                     return [4 /*yield*/, initReputation(program, agentKeypair.publicKey, agentKeypair)];
                 case 8:
                     _a.sent();
-                    console.log('  ✓ Agent reputation initialized');
+                    console.log('  [OK] Agent reputation initialized');
                     return [3 /*break*/, 10];
                 case 9:
                     e_2 = _a.sent();
-                    console.log('  ℹ️  Agent reputation exists or error:', e_2.message);
+                    console.log('  [Info] Agent reputation exists or error:', e_2.message);
                     return [3 /*break*/, 10];
                 case 10:
                     _a.trys.push([10, 12, , 13]);
                     return [4 /*yield*/, initReputation(program, oracleKeypair.publicKey, agentKeypair)];
                 case 11:
                     _a.sent();
-                    console.log('  ✓ API reputation initialized');
+                    console.log('  [OK] API reputation initialized');
                     return [3 /*break*/, 13];
                 case 12:
                     e_3 = _a.sent();
-                    console.log('  ℹ️  API reputation exists or error:', e_3.message);
+                    console.log('  [Info] API reputation exists or error:', e_3.message);
                     return [3 /*break*/, 13];
                 case 13:
                     transactionId = "test_".concat(Date.now());
                     amount = new anchor.BN(0.01 * web3_js_1.LAMPORTS_PER_SOL);
                     timeLock = new anchor.BN(86400);
-                    console.log('\n2️⃣  Creating escrow...');
+                    console.log('\nStep 2: Creating escrow...');
                     console.log("  Transaction ID: ".concat(transactionId));
                     console.log("  Amount: 0.01 SOL");
                     _a.label = 14;
@@ -176,16 +176,16 @@ function main() {
                     return [4 /*yield*/, createEscrow(program, agentKeypair, oracleKeypair.publicKey, amount, timeLock, transactionId)];
                 case 15:
                     escrowSig = _a.sent();
-                    console.log("  \u2713 Escrow created: ".concat(escrowSig));
-                    console.log("  \uD83D\uDD17 https://explorer.solana.com/tx/".concat(escrowSig, "?cluster=devnet"));
+                    console.log("  [OK] Escrow created: ".concat(escrowSig));
+                    console.log("  Link: https://explorer.solana.com/tx/".concat(escrowSig, "?cluster=devnet"));
                     return [3 /*break*/, 17];
                 case 16:
                     e_4 = _a.sent();
-                    console.error('  ❌ Failed to create escrow:', e_4);
+                    console.error('  [FAILED] Failed to create escrow:', e_4);
                     return [2 /*return*/];
                 case 17:
                     // Step 3: Generate oracle assessment
-                    console.log('\n3️⃣  Generating oracle assessment...');
+                    console.log('\nStep 3: Generating oracle assessment...');
                     qualityScore = 65 + Math.floor(Math.random() * 15);
                     refundPercentage = qualityScore < 50 ? 100 : qualityScore < 80 ? Math.round((80 - qualityScore) / 80 * 100) : 0;
                     message = "".concat(transactionId, ":").concat(qualityScore);
@@ -194,28 +194,28 @@ function main() {
                     console.log("  Quality Score: ".concat(qualityScore, "/100"));
                     console.log("  Refund: ".concat(refundPercentage, "%"));
                     // Step 4: Resolve dispute
-                    console.log('\n4️⃣  Resolving dispute on-chain...');
+                    console.log('\nStep 4: Resolving dispute on-chain...');
                     _a.label = 18;
                 case 18:
                     _a.trys.push([18, 20, , 21]);
                     return [4 /*yield*/, resolveDispute(program, agentKeypair, oracleKeypair.publicKey, transactionId, qualityScore, refundPercentage, Array.from(signature))];
                 case 19:
                     resolveSig = _a.sent();
-                    console.log("  \u2713 Dispute resolved: ".concat(resolveSig));
-                    console.log("  \uD83D\uDD17 https://explorer.solana.com/tx/".concat(resolveSig, "?cluster=devnet"));
+                    console.log("  [OK] Dispute resolved: ".concat(resolveSig));
+                    console.log("  Link: https://explorer.solana.com/tx/".concat(resolveSig, "?cluster=devnet"));
                     refundAmount = (0.01 * refundPercentage / 100).toFixed(4);
-                    console.log("\n\u2705 Success! Agent received ".concat(refundAmount, " SOL refund"));
+                    console.log("\n[PASS] Success! Agent received ".concat(refundAmount, " SOL refund"));
                     return [3 /*break*/, 21];
                 case 20:
                     e_5 = _a.sent();
-                    console.error('  ❌ Failed to resolve dispute:', e_5);
+                    console.error('  [FAILED] Failed to resolve dispute:', e_5);
                     if (e_5.logs) {
                         console.log('\nProgram logs:');
                         e_5.logs.forEach(function (log) { return console.log('  ', log); });
                     }
                     return [2 /*return*/];
                 case 21:
-                    console.log('\n🎉 Production test completed successfully!\n');
+                    console.log('\nProduction test completed successfully!\n');
                     return [2 /*return*/];
             }
         });

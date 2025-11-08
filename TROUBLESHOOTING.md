@@ -1,72 +1,40 @@
-# Troubleshooting Guide
-
-Common issues and solutions for x402Resolve.
-
-## Table of Contents
-
-- [Installation Issues](#installation-issues)
-- [Wallet & Connection Issues](#wallet--connection-issues)
-- [Payment & Escrow Issues](#payment--escrow-issues)
-- [Oracle & Verification Issues](#oracle--verification-issues)
-- [Example Code Issues](#example-code-issues)
-- [MCP Server Issues](#mcp-server-issues)
-- [General Debugging](#general-debugging)
-
----
+# Troubleshooting
 
 ## Installation Issues
 
-### Issue: `npm install` fails
+### `npm install` fails
 
-**Symptoms:**
-```
-npm ERR! code ERESOLVE
-npm ERR! ERESOLVE unable to resolve dependency tree
-```
+Symptoms: `ERESOLVE unable to resolve dependency tree`
 
-**Solutions:**
-
-1. **Use correct Node version:**
+Solutions:
 ```bash
-node --version  # Should be 18.x or higher
-nvm install 18
-nvm use 18
-```
+# Verify Node 18+
+node --version
+nvm install 18 && nvm use 18
 
-2. **Clear npm cache:**
-```bash
+# Clear cache
 npm cache clean --force
 rm -rf node_modules package-lock.json
 npm install
-```
 
-3. **Use legacy peer deps:**
-```bash
+# Use legacy peer deps if needed
 npm install --legacy-peer-deps
 ```
 
-### Issue: Anchor build fails
+### Anchor build fails
 
-**Symptoms:**
-```
-error: package `solana-program v1.14.0` cannot be built
-```
+Symptoms: `package solana-program v1.14.0 cannot be built`
 
-**Solutions:**
-
-1. **Check Anchor version:**
+Solutions:
 ```bash
-anchor --version  # Should be 0.28.0 or higher
-```
+# Verify Anchor 0.28.0+
+anchor --version
 
-2. **Install Solana CLI:**
-```bash
+# Install Solana CLI 1.14.0+
 sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-solana --version  # Should be 1.14.0 or higher
-```
+solana --version
 
-3. **Set to devnet:**
-```bash
+# Configure devnet
 solana config set --url devnet
 ```
 

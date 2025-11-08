@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-x402_escrow = "7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN"
+x402_escrow = "824XkRJ2TDQkqtWwU6YC4BKNq6bRGEikR48sdvHWAk5A"
 
 [registry]
 url = "https://api.apr.dev"

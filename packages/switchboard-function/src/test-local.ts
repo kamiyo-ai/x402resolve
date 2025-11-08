@@ -151,14 +151,14 @@ async function runTests() {
         result.quality_score <= testCase.expected.maxScore;
 
       if (inRange) {
-        console.log(`  ✅ PASS (Score in expected range: ${testCase.expected.minScore}-${testCase.expected.maxScore})`);
+        console.log(`  [PASS] (Score in expected range: ${testCase.expected.minScore}-${testCase.expected.maxScore})`);
         passed++;
       } else {
-        console.log(`  ❌ FAIL (Score ${result.quality_score} not in expected range: ${testCase.expected.minScore}-${testCase.expected.maxScore})`);
+        console.log(`  [FAIL] (Score ${result.quality_score} not in expected range: ${testCase.expected.minScore}-${testCase.expected.maxScore})`);
         failed++;
       }
     } catch (error) {
-      console.log(`  ❌ ERROR: ${error}`);
+      console.log(`  [ERROR] ${error}`);
       failed++;
     }
   }

@@ -233,7 +233,7 @@ async function main() {
   console.log('  • Event emissions for indexing');
   console.log('  • PDA-based escrow accounts\n');
 
-  console.log('🎉 Demo completed!\n');
+  console.log('Demo completed.\n');
 }
 
 // Run demo
