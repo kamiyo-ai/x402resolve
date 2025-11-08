@@ -1,5 +1,7 @@
 # x402Resolve
 
+![x402Resolve Header](./media/x402resolve-header.gif)
+
 Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessment on Solana.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
