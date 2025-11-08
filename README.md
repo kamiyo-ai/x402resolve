@@ -11,7 +11,7 @@
 
 ## Quick Links
 
-- **Live Demo**: https://x402kamiyo.github.io/x402resolve
+- **Live Demo**: https://x402resolve.kamiyo.ai
 - **Program ID**: `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY` (Devnet)
 
 Trustless escrow protocol for HTTP 402 APIs with oracle-verified quality assessment and sliding-scale refunds. Implements RFC 9110 Section 15.5.3 with PDA-secured payments released only after cryptographic quality verification.
