@@ -56,6 +56,34 @@ const result = await agent.consumeAPI(url, params, { expectedSchema });
 
 ## Architecture
 
+### High-Level Flow
+
+```
+┌──────────┐    ┌────────┐    ┌─────┐    ┌────────┐
+│  Client  │───▶│ Escrow │───▶│ API │◀──▶│ Oracle │
+└──────────┘    └────────┘    └─────┘    └────────┘
+                     │            │           │
+                     │            │           │
+                     │◀───────────┴───────────┘
+                     │  Quality Assessment
+                     │
+                     ▼
+              Sliding-Scale Refund
+```
+
+### Dispute Resolution Flow
+
+```
+1. Payment          2. API Call         3. Quality Check      4. Settlement
+┌─────────┐        ┌─────────┐         ┌──────────┐         ┌──────────┐
+│ Client  │        │   API   │         │  Oracle  │         │  Escrow  │
+│ creates │───────▶│ returns │────────▶│ assesses │────────▶│ executes │
+│ escrow  │  SOL   │  data   │  JSON   │ quality  │  score  │  refund  │
+└─────────┘        └─────────┘         └──────────┘         └──────────┘
+   0.01 SOL          Response            Score: 65            0.0035 SOL
+   locked            received            (35% refund)         returned
+```
+
 ### State Machine
 
 ```
