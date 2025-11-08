@@ -1,10 +1,11 @@
 /**
- * x402Resolve Oracle Transaction System
- * Production implementation for real on-chain dispute resolution
+ * x402Resolve Oracle Transaction System - LOCALNET VERSION
+ * For testing with local Solana test validator
  */
 
 const PROGRAM_ID = 'ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY';
-const DEVNET_RPC = 'https://api.devnet.solana.com';
+const LOCALNET_RPC = 'http://localhost:8899';
+
 
 // Browser-compatible Buffer replacement
 class BufferPolyfill {
@@ -73,7 +74,7 @@ for (let i = 0; i < 32; i++) {
 
 class OracleTransactionSystem {
     constructor() {
-        this.connection = new solanaWeb3.Connection(DEVNET_RPC, 'confirmed');
+        this.connection = new solanaWeb3.Connection(LOCALNET_RPC, 'confirmed');
         this.programId = new solanaWeb3.PublicKey(PROGRAM_ID);
         this.oracleKeypair = null;
         this.initOracle();
