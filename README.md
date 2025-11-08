@@ -6,8 +6,10 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Anchor](https://img.shields.io/badge/Anchor-0.31.1-663399)](https://www.anchor-lang.com/)
 
-**Live Demo**: https://x402kamiyo.github.io/x402resolve
-**Program ID**: `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY` (Devnet)
+# Quick Links
+
+- **Live Demo**: https://x402kamiyo.github.io/x402resolve
+- **Program ID**: `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY` (Devnet)
 
 Trustless escrow protocol for HTTP 402 APIs with oracle-verified quality assessment and sliding-scale refunds. Implements RFC 9110 Section 15.5.3 with PDA-secured payments released only after cryptographic quality verification.
 
