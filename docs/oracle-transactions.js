@@ -3,7 +3,7 @@
  * Production implementation for real on-chain dispute resolution
  */
 
-const PROGRAM_ID = 'ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY';
+const PROGRAM_ID = 'E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n';
 const DEVNET_RPC = 'https://api.devnet.solana.com';
 
 // Browser-compatible Buffer replacement

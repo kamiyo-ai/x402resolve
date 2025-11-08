@@ -5,7 +5,7 @@ import { Connection, Keypair, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.j
 import * as fs from 'fs';
 import * as nacl from 'tweetnacl';
 
-const PROGRAM_ID = new PublicKey('ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY');
+const PROGRAM_ID = new PublicKey('E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n');
 const RPC_URL = 'https://api.devnet.solana.com';
 
 // Load IDL

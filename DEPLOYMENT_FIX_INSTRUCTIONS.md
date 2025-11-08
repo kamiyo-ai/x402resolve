@@ -1,20 +1,18 @@
-# Deployment Fix Instructions for Sonnet 4.5 Agent
+# Deployment Instructions for Sonnet 4.5 Agent
 
-## Problem
-The deployed Solana program at address `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY` has a **DeclaredProgramIdMismatch** error (error 4100).
+## Current Status
+The program has been deployed to address `E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n` on Solana devnet.
 
-The on-chain program binary was compiled with `declare_id!("AubiRw1L6seTBKEZfkK2gE1TRY9kpV7J3VnEfZpL4Xta")` but deployed to address `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY`.
-
-The source code has been updated to use the correct program ID, but the on-chain program needs to be rebuilt and upgraded.
+All source code and configuration files have been updated to use this program ID.
 
 ## Solution
-Rebuild and upgrade the program with the correct program ID.
+Build and deploy the program with the correct program ID.
 
 ## Prerequisites
 - Linux environment (GitHub Codespace, Ubuntu, or Docker)
 - Solana CLI tools
 - Anchor CLI 0.31.1
-- Deployer wallet keypair with upgrade authority for program `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY`
+- Deployer wallet keypair (program keypair is included in repository)
 
 ## Step-by-Step Instructions
 
@@ -63,10 +61,10 @@ cd x402resolve/packages/x402-escrow
 ### 4. Verify the program ID is correct
 
 ```bash
-# Should output: declare_id!("ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY");
+# Should output: declare_id!("E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n");
 grep "declare_id" programs/x402-escrow/src/lib.rs
 
-# Should output: x402_escrow = "ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY"
+# Should output: x402_escrow = "E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n"
 grep "x402_escrow" Anchor.toml
 ```
 
@@ -80,31 +78,23 @@ Expected output:
 - Binary will be at: `target/deploy/x402_escrow.so`
 - IDL will be at: `target/idl/x402_escrow.json`
 
-### 6. Verify the upgrade authority
+### 6. Deploy the program
 
 ```bash
-solana program show ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY
+anchor deploy --provider.cluster devnet
 ```
 
-Look for "Upgrade Authority" - it should match your deployer wallet address.
-
-### 7. Upgrade the program
-
-```bash
-anchor upgrade target/deploy/x402_escrow.so --program-id ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY
-```
-
-### 8. Verify deployment
+### 7. Verify deployment
 
 ```bash
 # Check program details
-solana program show ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY
+solana program show E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n
 
 # View on Solana Explorer
-echo "https://explorer.solana.com/address/ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY?cluster=devnet"
+echo "https://explorer.solana.com/address/E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n?cluster=devnet"
 ```
 
-### 9. Test the deployment
+### 8. Test the deployment
 
 Try running the demo at https://x402resolve.kamiyo.ai/ - the error 4100 should be resolved.
 
@@ -118,7 +108,7 @@ solana airdrop 2
 ### "Invalid upgrade authority"
 The wallet you're using must be the upgrade authority. Check with:
 ```bash
-solana program show ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY
+solana program show E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n
 ```
 
 ### Build fails
@@ -127,10 +117,10 @@ Make sure you're using:
 - Rust stable toolchain
 - Solana CLI 1.18.x
 
-### Program ID mismatch persists
+### Program ID mismatch
 1. Ensure `packages/x402-escrow/programs/x402-escrow/src/lib.rs` contains:
    ```rust
-   declare_id!("ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY");
+   declare_id!("E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n");
    ```
 2. Clean build and try again:
    ```bash
@@ -140,10 +130,9 @@ Make sure you're using:
 
 ## Expected Result
 
-After successful upgrade:
-- Demo site should work without error 4100
-- Transaction logs should show: `Program ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY invoke [1]` followed by successful execution
-- No more "DeclaredProgramIdMismatch" errors
+After successful deployment:
+- Demo site should work without errors
+- Transaction logs should show: `Program E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n invoke [1]` followed by successful execution
 
 ## Files Modified (Already Done)
 
@@ -157,7 +146,7 @@ These files have already been updated with the correct program ID:
 - ✅ `tests/test-production-oracle.js`
 - ✅ `docs/oracle-transactions.js`
 
-All that's needed is to rebuild and upgrade the on-chain program.
+The program is ready to be built and deployed.
 
 ## Alternative: Using GitHub Codespaces
 
@@ -166,11 +155,10 @@ If you have access to GitHub Codespaces:
 1. Go to https://github.com/kamiyo-ai/x402resolve
 2. Click "Code" → "Codespaces" → "Create codespace on main"
 3. Wait for environment to load
-4. Follow steps 2-8 above
+4. Follow steps 2-7 above
 
 ## Notes for Agent
 
-- **DO NOT** change the program ID back to the old one
-- **DO NOT** deploy to a new address - use `anchor upgrade` to update the existing program
-- The deployer wallet keypair must be provided by the user
-- This is a one-time fix - once upgraded, the issue will be resolved permanently
+- **DO NOT** change the program ID - it has been correctly set to `E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n`
+- The program keypair is included in the repository at `packages/x402-escrow/target/deploy/x402_escrow-keypair.json`
+- The deployer wallet keypair must be provided by the user for funding the deployment
