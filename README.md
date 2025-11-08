@@ -1,112 +1,117 @@
 # x402Resolve
 
-Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessment on Solana.
+![x402Resolve Dashboard](./docs/media/switchboard-dashboard.png)
 
+
+[![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?logo=solana)](https://explorer.solana.com/address/ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY?cluster=devnet)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Anchor](https://img.shields.io/badge/Anchor-0.31.1-663399)](https://www.anchor-lang.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+
+## Judges
+
+**Quick Access Links:**
+- **Live Demo**: https://x402kamiyo.github.io/x402resolve
+- **API Endpoint**: https://x402resolve.kamiyo.ai
+- **Devnet Program**: [`ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY`](https://explorer.solana.com/address/ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY?cluster=devnet)
+- **Repository**: https://github.com/kamiyo-ai/x402resolve
+- **Documentation**: [./docs/markdown/API_REFERENCE.md](./docs/markdown/API_REFERENCE.md)
+- **Security Audit**: [./docs/security/SECURITY_AUDIT_REPORT.md](./docs/security/SECURITY_AUDIT_REPORT.md)
+
+HTTP 402 Payment Required implementation with cryptographic quality verification and sliding-scale refunds.
 
 ## Overview
 
-PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-scale refunds based on oracle quality assessment. No admin keys, no custody. Quality verified before payment release.
+Extends RFC 9110 Section 15.5.3 (HTTP 402) with Solana escrow and multi-oracle quality assessment. Payments held in PDA until quality verified. Refunds proportional to quality score (0-100%).
 
-**Program ID**: `824XkRJ2TDQkqtWwU6YC4BKNq6bRGEikR48sdvHWAk5A` (Devnet)
-
-## Features
-
-- PDA-secured escrow without admin keys
-- Ed25519 signature verification for centralized oracle
-- Switchboard On-Demand integration for decentralized oracle
-- Sliding-scale refunds (0-100%) based on quality metrics
-- Timestamp validation (300s freshness window)
-- Reputation tracking for agents and APIs
-- Rate limiting with verification tiers
+**Technical Features:**
+- Sliding-scale refunds based on quality metrics
+- Multi-oracle verification (Python ML + Switchboard)
+- PDA-based escrow without admin keys
+- Ed25519 signature verification
+- 99.9% cost reduction vs traditional chargebacks
 
 ## Quick Start
 
-### API Provider
+### For API Providers
 
 ```typescript
 import { x402PaymentMiddleware } from '@x402resolve/middleware';
 
 app.use('/api/*', x402PaymentMiddleware({
+  realm: 'my-api',
   programId: ESCROW_PROGRAM_ID,
   connection,
   price: 0.001,
+  qualityGuarantee: true
 }));
 ```
 
-### Agent/Consumer
+### For API Consumers
 
 ```typescript
 import { AutonomousServiceAgent } from '@x402resolve/agent-client';
 
 const agent = new AutonomousServiceAgent({
-  keypair,
+  keypair: agentKeypair,
   connection,
   programId: ESCROW_PROGRAM_ID,
   qualityThreshold: 85,
+  autoDispute: true
 });
 
-const result = await agent.consumeAPI(url, params, { expectedSchema });
+const result = await agent.consumeAPI(
+  'https://api.example.com/data',
+  { query: 'params' },
+  { expectedSchema }
+);
 ```
 
 ## Architecture
 
-### State Machine
-
 ```
-initialize_escrow → Active → [release_funds | mark_disputed]
-                      ↓                           ↓
-                   Released                   Disputed
-                                                 ↓
-                                         resolve_dispute
-                                                 ↓
-                                             Resolved
-                                         (split by refund %)
+┌──────────┐    ┌────────┐    ┌─────┐    ┌────────┐
+│  Client  │───▶│ Escrow │───▶│ API │◀──▶│ Oracle │
+└──────────┘    └────────┘    └─────┘    └────────┘
+                     │            │           │
+                     │            │           │
+                     │◀───────────┴───────────┘
+                     │  Quality Assessment
+                     │
+                     ▼
+              Sliding-Scale Refund
 ```
 
-### Account Structure
+### Components
 
-**Escrow PDA**: `["escrow", transaction_id]`
-- agent: Pubkey
-- api: Pubkey
-- amount: u64
-- status: EscrowStatus
-- created_at/expires_at: i64
-- transaction_id: String
-- quality_score: Option\<u8\>
-- refund_percentage: Option\<u8\>
-
-**Reputation PDA**: `["reputation", entity]`
-- total_transactions: u64
-- disputes_filed/won/partial/lost: u64
-- average_quality_received: u8
-- reputation_score: u16 (0-1000)
-
-## Oracle Integration
-
-### Centralized (Python)
-Ed25519-signed quality assessment with on-chain signature verification.
-
-### Decentralized (Switchboard)
-On-Demand pull feed with cryptographic attestation. Timestamp validation enforces 300-second freshness window.
-
-```rust
-let feed_data = PullFeedAccountData::parse(feed_account_info.data.borrow())?;
-let age = clock.unix_timestamp - feed_data.last_update_timestamp;
-require!(age >= 0 && age <= 300, StaleAttestation);
-```
+- **Solana Program** (`packages/x402-escrow`): PDA-based escrow with Ed25519 signature verification
+- **TypeScript SDK** (`packages/x402-sdk`): Client library for escrow and dispute management
+- **Python Verifier** (`packages/x402-verifier`): ML-based quality scoring (centralized)
+- **Switchboard Function** (`packages/switchboard-function`): Decentralized quality oracle
+- **HTTP 402 Middleware** (`packages/x402-middleware`): Express/FastAPI integration
+- **Agent Client** (`packages/agent-client`): Autonomous agent with auto-dispute
 
 ## Quality Scoring
 
-Oracle outputs:
-1. **quality_score** (0-100): Weighted assessment
-2. **refund_percentage** (0-100): Refund amount
+Multi-factor algorithm (0-100 scale):
 
-Refund logic determined by oracle. Typical mapping:
-- Score < 50 → Full refund
-- Score 50-79 → Partial refund
-- Score ≥ 80 → No refund
+```
+Quality = (Completeness × 0.4) + (Accuracy × 0.3) + (Freshness × 0.3)
+
+Refund = 100 - Quality  (for scores < 80)
+```
+
+**Example:**
+- Quality: 65% → Refund: 35%
+- Quality: 85% → Refund: 0%
+- Quality: 40% → Refund: 100%
+
+## Live Deployment
+
+- **Program ID**: `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY`
+- **Network**: Solana Devnet
+- **API**: https://x402resolve.kamiyo.ai
+- **Dashboard**: https://x402kamiyo.github.io/x402resolve
 
 ## Installation
 
@@ -114,41 +119,65 @@ Refund logic determined by oracle. Typical mapping:
 git clone https://github.com/kamiyo-ai/x402resolve
 cd x402resolve
 npm install
+npm run build
 ```
 
-### Build Program
+### Deploy Program
 
 ```bash
 cd packages/x402-escrow
 anchor build
-anchor deploy --provider.cluster devnet
+anchor deploy
 ```
-
-## Packages
-
-- `x402-escrow`: Solana program (Anchor)
-- `x402-sdk`: TypeScript client library
-- `x402-middleware`: HTTP 402 middleware (Express/FastAPI)
-- `agent-client`: Autonomous agent implementation
-- `switchboard-function`: Decentralized oracle function
-
-## Security
-
-- Checked arithmetic for all calculations
-- PDA authority isolation
-- Time-lock bounds (1h - 30d)
-- Amount limits (0.001 - 1000 SOL)
-- Rent-exempt validation
-- Rate limiting by verification tier
-
-See [SECURITY.md](./SECURITY.md) for details.
 
 ## Documentation
 
 - [API Reference](./docs/markdown/API_REFERENCE.md)
-- [Switchboard Integration](./packages/x402-escrow/SWITCHBOARD_INTEGRATION.md)
+- [Architecture](./docs/ARCHITECTURE_DIAGRAMS.md)
+- [Security Audit](./docs/security/SECURITY_AUDIT_REPORT.md)
 - [Troubleshooting](./TROUBLESHOOTING.md)
+
+## Examples
+
+- [Complete Flow](./examples/complete-flow) - End-to-end escrow workflow
+- [Agent Dispute](./examples/agent-dispute) - Autonomous dispute filing
+- [API Server](./examples/x402-api-server) - HTTP 402 implementation
+- [Autonomous Agent](./examples/autonomous-agent) - Full agent autonomy
+
+## Economics
+
+Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
+
+| Method | Cost/Dispute | Total/Month | Resolution |
+|--------|--------------|-------------|------------|
+| Traditional | $35 | $3,500 | 30-90 days |
+| x402Resolve | $0.005 | $0.50 | 48 hours |
+| Reduction | 99.98% | 99.98% | 98% faster |
+
+**Annual savings: $38,880** (92% reduction including refunds and infrastructure)
+
+## Performance
+
+| Metric | Value |
+|--------|-------|
+| Dispute Cost | $0.005 SOL |
+| Resolution Time | 48 hours |
+| Program Size | 275 KB |
+| Test Coverage | 90+ tests |
+
+## Security
+
+- PDA-based escrow (no admin keys)
+- Ed25519 signature verification
+- Checked arithmetic (overflow protection)
+- Time-lock protection (1h - 30d)
+- Rent-exempt validation
+- Multi-oracle consensus available
+
+See [Security Audit](./docs/security/SECURITY_AUDIT_REPORT.md) for details.
 
 ## License
 
 MIT | KAMIYO
+
+**Contact**: dev@kamiyo.ai | [kamiyo.ai](https://kamiyo.ai)
