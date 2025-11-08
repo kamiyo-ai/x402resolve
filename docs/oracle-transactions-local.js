@@ -183,9 +183,9 @@ class OracleTransactionSystem {
         dataLayout[offset + 1] = (sigOffset >> 8) & 0xFF;
         offset += 2;
 
-        // signature_instruction_index (u16 LE) - 0xFFFF means current instruction
-        dataLayout[offset] = 0xFF;
-        dataLayout[offset + 1] = 0xFF;
+        // signature_instruction_index (u16 LE) - 0 means this instruction
+        dataLayout[offset] = 0;
+        dataLayout[offset + 1] = 0;
         offset += 2;
 
         // public_key_offset (u16 LE)
@@ -193,9 +193,9 @@ class OracleTransactionSystem {
         dataLayout[offset + 1] = (pubkeyOffset >> 8) & 0xFF;
         offset += 2;
 
-        // public_key_instruction_index (u16 LE)
-        dataLayout[offset] = 0xFF;
-        dataLayout[offset + 1] = 0xFF;
+        // public_key_instruction_index (u16 LE) - 0 means this instruction
+        dataLayout[offset] = 0;
+        dataLayout[offset + 1] = 0;
         offset += 2;
 
         // message_data_offset (u16 LE)
@@ -208,9 +208,9 @@ class OracleTransactionSystem {
         dataLayout[offset + 1] = (messageBytes.length >> 8) & 0xFF;
         offset += 2;
 
-        // message_instruction_index (u16 LE)
-        dataLayout[offset] = 0xFF;
-        dataLayout[offset + 1] = 0xFF;
+        // message_instruction_index (u16 LE) - 0 means this instruction
+        dataLayout[offset] = 0;
+        dataLayout[offset + 1] = 0;
         offset += 2;
 
         // Verify offsets are correct
