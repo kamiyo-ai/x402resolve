@@ -9,7 +9,7 @@
 [![Switchboard](https://img.shields.io/badge/Switchboard-On--Demand-red)](https://switchboard.xyz/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-# Quick Links
+## Quick Links
 
 - **Live Demo**: https://x402kamiyo.github.io/x402resolve
 - **Program ID**: `ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY` (Devnet)
