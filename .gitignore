@@ -57,3 +57,4 @@ render.yaml
 
 # Video automation
 video-automation/
+.env*
