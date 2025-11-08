@@ -150,7 +150,7 @@ class OracleTransactionSystem {
         const publicKeyBytes = publicKey.toBytes();
         const messageBytes = new TextEncoder().encode(message);
 
-        console.log('Ed25519 instruction data:', {
+        console.log('ed25519 instruction data:', {
             signatureLen: signatureBytes.length,
             publicKeyLen: publicKeyBytes.length,
             messageLen: messageBytes.length,
@@ -232,7 +232,7 @@ class OracleTransactionSystem {
         // Message data
         dataLayout.set(messageBytes, messageOffset);
 
-        console.log('Ed25519 instruction created successfully, total size:', totalSize);
+        console.log('ed25519 instruction created successfully, total size:', totalSize);
 
         return new solanaWeb3.TransactionInstruction({
             keys: [],
@@ -250,14 +250,14 @@ class OracleTransactionSystem {
         try {
             const accountInfo = await this.connection.getAccountInfo(pda);
             if (accountInfo) {
-                console.log(`Reputation account already exists for ${entity.toString().substring(0, 8)}...`);
+                console.log(`reputation account already exists for ${entity.toString().substring(0, 8)}...`);
                 return pda;
             }
         } catch (e) {
             // Account doesn't exist, create it
         }
 
-        console.log(`Creating reputation account for ${entity.toString().substring(0, 8)}...`);
+        console.log(`creating reputation account for ${entity.toString().substring(0, 8)}...`);
 
         // Build init_reputation instruction
         const discriminator = Buffer.from([
@@ -293,11 +293,11 @@ class OracleTransactionSystem {
         // Check if escrow already exists
         const accountInfo = await this.connection.getAccountInfo(escrowPda);
         if (accountInfo) {
-            console.log('Escrow already exists for transaction ID:', transactionId, '- skipping creation');
+            console.log('escrow already exists for transaction ID:', transactionId, '- skipping creation');
             return null; // Return null to indicate escrow already exists
         }
 
-        console.log('Creating new escrow:', { transactionId, amount, escrowPda: escrowPda.toString() });
+        console.log('creating new escrow:', { transactionId, amount, escrowPda: escrowPda.toString() });
 
         const amountLamports = Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL);
         const timeLock = 86400; // 24 hours
@@ -329,7 +329,7 @@ class OracleTransactionSystem {
 
         const data = dataLayout.slice(0, offset);
 
-        console.log('Initialize escrow instruction:', {
+        console.log('initialize escrow instruction:', {
             escrowPda: escrowPda.toString(),
             agent: wallet.toString(),
             api: apiPublicKey.toString(),
@@ -342,7 +342,7 @@ class OracleTransactionSystem {
         });
 
         console.log('=== CHECKPOINT 1: After logging instruction ===');
-        console.log('About to create TransactionInstruction...');
+        console.log('about to create transaction instruction...');
         console.log('=== CHECKPOINT 2: Before creating instruction ===');
 
         const instruction = new solanaWeb3.TransactionInstruction({
@@ -356,12 +356,12 @@ class OracleTransactionSystem {
             data
         });
 
-        console.log('TransactionInstruction created successfully');
+        console.log('transaction instruction created successfully');
 
         try {
-            console.log('Building transaction...');
+            console.log('building transaction...');
             const transaction = new solanaWeb3.Transaction().add(instruction);
-            console.log('Transaction built successfully');
+            console.log('transaction built successfully');
             return transaction;
         } catch (txError) {
             console.error('CRITICAL ERROR building transaction:', txError);
@@ -434,7 +434,7 @@ class OracleTransactionSystem {
         // Build resolve_dispute instruction
         const discriminator = Buffer.from([231, 6, 202, 6, 96, 103, 12, 230]); // resolve_dispute discriminator from IDL
 
-        console.log('Building resolve_dispute instruction:', {
+        console.log('building resolve_dispute instruction:', {
             qualityScore: assessment.qualityScore,
             refundPercentage: assessment.refundPercentage,
             signatureLength: assessment.signature.length,
@@ -465,7 +465,7 @@ class OracleTransactionSystem {
         offset += 64;
 
         const data = dataLayout.slice(0, offset);
-        console.log('Instruction data size:', data.length, 'bytes');
+        console.log('instruction data size:', data.length, 'bytes');
 
         const resolveIx = new solanaWeb3.TransactionInstruction({
             keys: [
@@ -579,7 +579,7 @@ class OracleTransactionSystem {
 
                     throw new Error(`Transaction validation failed: ${errorMsg}`);
                 }
-                console.log('Pre-flight validation passed:', simulation.value);
+                console.log('pre-flight validation passed:', simulation.value);
             } catch (simError) {
                 console.error('Validation error:', simError);
                 throw simError;
@@ -587,9 +587,9 @@ class OracleTransactionSystem {
 
             // Use signAndSendTransaction for better Phantom compatibility
             if (window.solana && window.solana.signAndSendTransaction) {
-                console.log('Requesting wallet signature...');
+                console.log('requesting wallet signature...');
                 const { signature } = await window.solana.signAndSendTransaction(transaction);
-                console.log('Transaction sent with signature:', signature);
+                console.log('transaction sent with signature:', signature);
 
                 // Confirm transaction
                 const confirmation = await this.connection.confirmTransaction({
@@ -604,7 +604,7 @@ class OracleTransactionSystem {
 
                 return signature;
             } else {
-                console.log('Using fallback: signTransaction + sendRawTransaction');
+                console.log('using fallback: signTransaction + sendRawTransaction');
                 // Fallback to signTransaction + sendRawTransaction
                 const signed = await window.solana.signTransaction(transaction);
 
@@ -614,7 +614,7 @@ class OracleTransactionSystem {
                     maxRetries: 3
                 });
 
-                console.log('Transaction sent:', signature);
+                console.log('transaction sent:', signature);
 
                 // Confirm transaction
                 const confirmation = await this.connection.confirmTransaction({
