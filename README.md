@@ -1,6 +1,5 @@
 # x402Resolve
-
-
+![x402resolve-header](https://github.com/user-attachments/assets/fef2f767-b87b-414b-bc4f-1f5ef1601094)
 [![Solana](https://img.shields.io/badge/Solana-Devnet-9945FF?logo=solana)](https://explorer.solana.com/address/ERjFnw8BMLo4aRx82itMogcPPrUzXh6Kd6pwWt6dgBbY?cluster=devnet)
 [![Anchor](https://img.shields.io/badge/Anchor-0.31.1-663399)](https://www.anchor-lang.com/)
 [![Rust](https://img.shields.io/badge/Rust-1.84+-orange?logo=rust)](https://www.rust-lang.org/)
