@@ -54,3 +54,6 @@ Thumbs.db
 
 # Temporary
 render.yaml
+
+# Video automation
+video-automation/
