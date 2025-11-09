@@ -30,7 +30,7 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 Build x402-compliant APIs or agents in **minutes**, not weeks. No custom escrow logic, refund math, or reputation tracking needed.
 
-### API Provider (5 lines)
+### API Provider
 
 ```typescript
 import { x402PaymentMiddleware } from '@x402resolve/middleware';
@@ -41,7 +41,7 @@ app.use('/api/*', x402PaymentMiddleware({
 }));
 ```
 
-### AI Agent (3 lines)
+### AI Agent
 
 ```typescript
 const escrow = await client.createEscrow({ api: provider, amount: 0.001 });
