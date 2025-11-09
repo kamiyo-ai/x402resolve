@@ -22,9 +22,9 @@ HTTP 402 APIs lack trustless quality assurance. Clients pay upfront with no reco
 
 ## Market Opportunity
 
-The AI agents market hit **$5.4B in 2024** (growing 41% annually) while payment disputes reached **$33.79B**. As agents make autonomous purchases, traditional chargebacks (30-90 days, $35-50/dispute) break automation. Industry experts predict: *"AI agent transactions will trigger new payment disputes... It's going to be messy for the next five years."*
+The AI agents market reached **$7.6B in 2025** (41% YoY growth) while payment disputes hit **$41.69B**. As agents make autonomous purchases, traditional chargebacks (30-90 days, $35-50/dispute) break automation. Industry experts predict: *"AI agent transactions will trigger new payment disputes... It's going to be messy for the next five years."*
 
-**x402Resolve advantage:** 15-45x faster resolution, 5-25x cheaper, sliding-scale refunds vs binary (all-or-nothing). First and only MCP server for payments—MCP adopted by OpenAI (March 2025), Google DeepMind (April 2025).
+**x402Resolve advantage:** 15-45x faster resolution, 5-25x cheaper, sliding-scale refunds vs binary (all-or-nothing). First and only MCP server for payments—MCP adopted by OpenAI, Google DeepMind in 2025.
 
 **Go-to-Market:** Phase 1: MCP ecosystem (Claude, LangChain). Phase 2: Developer platforms (Replit, Zed). Phase 3: Enterprise (Fortune 500, Stripe, Visa). Phase 4: Protocol standardization (RFC, industry adoption). 6-12 month first-mover lead, network effects via reputation data.
 
