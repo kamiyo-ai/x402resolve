@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="./media/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
@@ -100,8 +100,8 @@
             --transition-slow: 0.3s ease;
 
             /* Other */
-            --font-family-primary: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-family-mono: 'Monaco', 'Courier New', monospace;
+            --font-family-primary: 'JetBrains Mono', monospace;
+            --font-family-mono: 'JetBrains Mono', monospace;
         }
 
         /* ========================================
@@ -115,12 +115,21 @@
 
         body {
             font-family: var(--font-family-primary);
+            font-weight: 300;
             background: var(--color-bg-primary);
             color: var(--color-text-secondary);
             min-height: 100vh;
             padding: var(--spacing-2xl);
             line-height: 1.6;
             cursor: none;
+        }
+
+        h1, h2, h3, h4, h5, h6,
+        button,
+        .btn-magenta-outline,
+        .wallet-connect-btn,
+        .tab {
+            font-weight: 400;
         }
 
         /* ========================================
