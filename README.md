@@ -177,28 +177,36 @@ initialize_escrow → Active → [release_funds | mark_disputed]
 
 ### Account Structure
 
-**Escrow PDA**: `seeds = ["escrow", transaction_id.as_bytes()]`
-- agent: Pubkey (32 bytes) - Client/consumer
-- api: Pubkey (32 bytes) - API provider
-- amount: u64 (8 bytes) - Escrowed amount in lamports
-- status: EscrowStatus (2 bytes) - Active | Released | Disputed | Resolved
-- created_at: i64 (8 bytes) - Unix timestamp
-- expires_at: i64 (8 bytes) - Time-lock expiration
-- transaction_id: String (4 + 64 bytes) - Unique transaction identifier
-- bump: u8 (1 byte) - PDA bump seed
-- quality_score: Option\<u8\> (2 bytes) - Oracle quality assessment (0-100)
-- refund_percentage: Option\<u8\> (2 bytes) - Refund percentage (0-100)
+**Escrow PDA**
+```rust
+seeds = ["escrow", transaction_id.as_bytes()]
 
-**Reputation PDA**: `seeds = ["reputation", entity_pubkey.as_ref()]`
-- entity: Pubkey (32 bytes) - Agent or API provider
-- total_transactions: u64 (8 bytes)
-- disputes_filed: u64 (8 bytes)
-- disputes_won: u64 (8 bytes)
-- disputes_partial: u64 (8 bytes)
-- disputes_lost: u64 (8 bytes)
-- average_quality_received: u8 (1 byte) - For agents
-- reputation_score: u16 (2 bytes) - Calculated score (0-1000)
-- bump: u8 (1 byte)
+agent: Pubkey (32 bytes)                    // Client/consumer
+api: Pubkey (32 bytes)                      // API provider
+amount: u64 (8 bytes)                       // Escrowed amount in lamports
+status: EscrowStatus (2 bytes)              // Active | Released | Disputed | Resolved
+created_at: i64 (8 bytes)                   // Unix timestamp
+expires_at: i64 (8 bytes)                   // Time-lock expiration
+transaction_id: String (4 + 64 bytes)       // Unique transaction identifier
+bump: u8 (1 byte)                           // PDA bump seed
+quality_score: Option<u8> (2 bytes)         // Oracle quality assessment (0-100)
+refund_percentage: Option<u8> (2 bytes)     // Refund percentage (0-100)
+```
+
+**Reputation PDA**
+```rust
+seeds = ["reputation", entity_pubkey.as_ref()]
+
+entity: Pubkey (32 bytes)                   // Agent or API provider
+total_transactions: u64 (8 bytes)
+disputes_filed: u64 (8 bytes)
+disputes_won: u64 (8 bytes)
+disputes_partial: u64 (8 bytes)
+disputes_lost: u64 (8 bytes)
+average_quality_received: u8 (1 byte)       // For agents
+reputation_score: u16 (2 bytes)             // Calculated score (0-1000)
+bump: u8 (1 byte)
+```
 
 ## Oracle Integration
 
