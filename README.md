@@ -88,8 +88,7 @@ Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
 |--------|--------------|-------------|-----------------|-------------|
 | Traditional (Stripe/PayPal) | $35-50 | $3,500-5,000 | 30-90 days | $42,000-60,000 |
 | x402Resolve (All-in) | $2-8 | $200-800 | 2-48 hours | $2,400-9,600 |
-| **Savings** | **$27-48** | **$2,700-4,800** | **97-99% faster** | **$32,400-57,600/year** |
-| **Percentage Savings** | **84-96%** | **84-96%** | **97-99%** | **84-96%** |
+| **Savings** | **$27-48 (84-96%)** | **$2,700-4,800 (84-96%)** | **97-99% faster** | **$32,400-57,600 (84-96%)** |
 
 - **Traditional:** $35-50/dispute (chargeback + processing + admin)
 - **x402Resolve:** $2-8/dispute (ML inference $0.5-2 + agent compute $0.3-1.5 + infrastructure $1-3 + on-chain $0.02)
