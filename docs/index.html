@@ -1832,7 +1832,7 @@ pub mod x402_escrow {
             }
 
             btn.disabled = true;
-            btn.textContent = 'Creating escrow...';
+            updateButtonText(btn, 'Creating escrow...');
 
             // Show and reset progress bar
             progressBar.style.display = 'block';
@@ -1846,7 +1846,7 @@ pub mod x402_escrow {
 
             try {
                 // Step 1: Ensure reputation accounts exist (batched)
-                btn.textContent = 'Step 1/3: Initializing Reputation Accounts...';
+                updateButtonText(btn, 'Step 1/3: Initializing Reputation Accounts...');
                 progressFill.style.width = '10%';
 
                 try {
@@ -1886,7 +1886,7 @@ pub mod x402_escrow {
                 progressFill.style.width = '25%';
 
                 // Step 2: Create Escrow
-                btn.textContent = 'Step 2/3: Creating Escrow...';
+                updateButtonText(btn, 'Step 2/3: Creating Escrow...');
                 console.log('Calling createEscrow...');
                 const escrowTx = await window.oracleSystem.createEscrow(
                     walletPublicKey,
@@ -1911,7 +1911,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 3: Generate Oracle Assessment
-                btn.textContent = 'Step 3/3: Oracle Assessing Quality...';
+                updateButtonText(btn, 'Step 3/3: Oracle Assessing Quality...');
                 progressFill.style.width = '65%';
                 const assessment = await window.oracleSystem.generateQualityAssessment(transactionId);
 
@@ -2009,7 +2009,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 4: Resolve Dispute with Oracle Signature
-                btn.textContent = 'Step 3/3: Resolving dispute on-chain...';
+                updateButtonText(btn, 'Step 3/3: Resolving dispute on-chain...');
                 progressFill.style.width = '90%';
                 const resolveTx = await window.oracleSystem.resolveDispute(transactionId, assessment);
                 const resolveSig = await window.oracleSystem.sendAndConfirm(resolveTx, walletPublicKey);
@@ -2059,7 +2059,7 @@ pub mod x402_escrow {
                 `;
 
                 document.getElementById('oracleResults').style.display = 'block';
-                btn.textContent = 'Run another assessment';
+                updateButtonText(btn, 'Run another assessment');
                 btn.disabled = false;
 
                 // Hide progress bar after completion
@@ -2098,7 +2098,7 @@ pub mod x402_escrow {
                     errorMsg = 'Transaction validation failed - invalid instruction arguments. Check console for details.';
                 }
                 showStatus(`Error: ${errorMsg}`, 'error');
-                btn.textContent = 'Try again';
+                updateButtonText(btn, 'Try again');
                 btn.disabled = false;
                 progressBar.style.display = 'none';
             }
@@ -2328,6 +2328,114 @@ pub mod x402_escrow {
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Scramble text effect for buttons
+        class ScrambleText {
+            constructor(element, originalText) {
+                this.element = element;
+                this.originalText = originalText;
+                this.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                this.scrambleInterval = null;
+                this.isHovering = false;
+                this.enabled = true;
+
+                // Bind event listeners
+                this.element.addEventListener('mouseenter', () => this.onMouseEnter());
+                this.element.addEventListener('mouseleave', () => this.onMouseLeave());
+            }
+
+            onMouseEnter() {
+                if (!this.enabled || this.element.disabled) return;
+                this.isHovering = true;
+                this.scrambleLetters();
+            }
+
+            onMouseLeave() {
+                if (!this.enabled) return;
+                this.isHovering = false;
+                this.descrambleLetters();
+            }
+
+            scrambleLetters() {
+                if (this.scrambleInterval) clearInterval(this.scrambleInterval);
+
+                let progress = 0;
+                this.scrambleInterval = setInterval(() => {
+                    if (progress >= this.originalText.length) {
+                        clearInterval(this.scrambleInterval);
+                        return;
+                    }
+
+                    const scrambled = this.originalText
+                        .split("")
+                        .map((char, index) => {
+                            if (char === ' ') return ' ';
+                            return index < progress
+                                ? this.originalText[index]
+                                : this.chars[Math.floor(Math.random() * this.chars.length)];
+                        })
+                        .join("");
+
+                    this.element.textContent = scrambled;
+                    progress++;
+                }, 45);
+            }
+
+            descrambleLetters() {
+                if (this.scrambleInterval) clearInterval(this.scrambleInterval);
+
+                let progress = this.originalText.length;
+                this.scrambleInterval = setInterval(() => {
+                    if (progress <= 0) {
+                        clearInterval(this.scrambleInterval);
+                        this.element.textContent = this.originalText;
+                        return;
+                    }
+
+                    const scrambled = this.originalText
+                        .split("")
+                        .map((char, index) => {
+                            if (char === ' ') return ' ';
+                            return index >= progress
+                                ? this.originalText[index]
+                                : this.chars[Math.floor(Math.random() * this.chars.length)];
+                        })
+                        .join("");
+
+                    this.element.textContent = scrambled;
+                    progress--;
+                }, 35);
+            }
+
+            updateText(newText) {
+                this.originalText = newText;
+                if (!this.isHovering) {
+                    this.element.textContent = newText;
+                }
+            }
+
+            destroy() {
+                if (this.scrambleInterval) clearInterval(this.scrambleInterval);
+            }
+        }
+
+        // Initialize scramble text on buttons
+        let oracleBtnScramble = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            const oracleBtn = document.getElementById('oracleBtn');
+            if (oracleBtn) {
+                oracleBtnScramble = new ScrambleText(oracleBtn, oracleBtn.textContent);
+            }
+        });
+
+        // Helper function to update button text with scramble effect
+        function updateButtonText(btn, text) {
+            if (btn.id === 'oracleBtn' && oracleBtnScramble) {
+                oracleBtnScramble.updateText(text);
+            } else {
+                btn.textContent = text;
+            }
         }
     </script>
 
