@@ -15,6 +15,31 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 **Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
 
+## Economics
+
+Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
+
+| Method | Cost/Dispute | Total/Month | Resolution Time |
+|--------|--------------|-------------|-----------------|
+| Traditional (Stripe/PayPal) | $35 | $3,500 | 30-90 days |
+| x402Resolve | $0.005 | $0.50 | 48 hours |
+| **Reduction** | **99.98%** | **99.98%** | **98% faster** |
+
+**Annual savings: $41,994** (99.98% cost reduction)
+
+### Cost Breakdown
+
+**Traditional Payment Disputes:**
+- Chargeback fee: $15-20
+- Processing fee: $15-25
+- Administrative overhead: Staff time, documentation
+- **Total per dispute: ~$35**
+
+**x402Resolve:**
+- Solana transaction: ~$0.001 (0.000005 SOL)
+- Oracle assessment: ~$0.004 (off-chain computation)
+- **Total per dispute: ~$0.005**
+
 ## Features
 
 - PDA-secured escrow without admin keys
