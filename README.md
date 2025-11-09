@@ -1,6 +1,6 @@
 # x402Resolve
 
-![x402Resolve Header](./media/x402resolve-header.gif)
+![x402resolve](https://github.com/user-attachments/assets/7c7783d6-2055-400b-a1e5-cb4c2ce7a76c)
 
 Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessment on Solana.
 
