@@ -17,12 +17,10 @@ import base58
 
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.commitment import Confirmed
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.transaction import Transaction
-from solana.system_program import transfer, TransferParams
-from solders.pubkey import Pubkey as SoldersPubkey
-from solders.system_program import ID as SYS_PROGRAM_ID
+from solders.keypair import Keypair
+from solders.pubkey import Pubkey as PublicKey
+from solders.transaction import Transaction
+from solders.system_program import transfer, TransferParams, ID as SYS_PROGRAM_ID
 
 logger = logging.getLogger(__name__)
 
