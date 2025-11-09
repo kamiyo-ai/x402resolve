@@ -61,6 +61,50 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 
 **Sub-penny costs** → $0.02/dispute (even with ML inference + infrastructure). Traditional methods cost $35-50.
 
+## Use Cases
+
+**AI Agent Marketplaces**
+- Agents auto-pay for API access with quality guarantees
+- Threshold enforcement (e.g., 85% minimum quality)
+- Example: Agent discovers Twitter API → pays 0.001 SOL → auto-refund if data incomplete
+
+**Data Marketplaces**
+- Real-time market data with oracle-verified freshness
+- Completeness and schema validation
+- Example: Financial API → oracle checks timestamp → refund if stale
+
+**Compute Marketplaces**
+- GPU inference APIs with SLA enforcement
+- Response time and accuracy verification
+- Example: Image generation → quality score based on resolution + inference time
+
+**ML Model Endpoints**
+- Pay-per-inference with confidence thresholds
+- Schema validation for structured outputs
+- Example: Sentiment analysis → refund if confidence <90%
+
+## Ecosystem
+
+**Agent Frameworks** - Drop-in payment layer for autonomous agents
+- Compatible with LangChain tool calling patterns
+- Works with AutoGPT API consumption flows
+- Integrates with any HTTP client (axios, fetch, etc.)
+
+**Solana DeFi** - Composable with existing protocols
+- SPL token support (planned)
+- Solana Pay compatible transaction format
+- Jupiter/Orca integration for token swaps → escrow (planned)
+
+**Oracle Networks** - Multi-oracle quality verification
+- Switchboard On-Demand (live)
+- Pyth price feeds for fiat-pegged escrows (planned)
+- Custom oracle endpoints (configurable)
+
+**API Standards** - RFC-compliant design
+- HTTP 402 Payment Required (RFC 9110)
+- OpenAPI 3.0 compatible middleware
+- Works with Express, FastAPI, Next.js API routes
+
 ## Economics
 
 Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
@@ -350,6 +394,33 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 - [API Reference](./docs/markdown/API_REFERENCE.md)
 - [Switchboard Integration](./packages/x402-escrow/SWITCHBOARD_INTEGRATION.md)
 - [Troubleshooting](./TROUBLESHOOTING.md)
+
+## Roadmap
+
+**Current (Q4 2024)**
+- ✅ Switchboard On-Demand oracle integration
+- ✅ HTTP 402 middleware for Express
+- ✅ TypeScript SDK with reputation tracking
+- ✅ Quality-based sliding-scale refunds
+- 🔄 Multi-oracle support (custom endpoints)
+
+**Q1 2025**
+- SPL token escrows (USDC/USDT/PYUSD)
+- Enhanced quality scoring algorithms
+- Additional framework middleware (FastAPI, Next.js)
+- Improved dispute resolution UI
+
+**Q2 2025**
+- Cross-chain bridging (Wormhole)
+- Pyth price feeds for fiat-pegged escrows
+- Agent framework adapters (LangChain, AutoGPT)
+- Advanced reputation scoring (ML-based)
+
+**Future**
+- Chainlink CCIP for cross-chain disputes
+- Metaplex NFT-gated API access
+- Jupiter aggregator integration for token swaps
+- Governance token for protocol parameters
 
 ## License
 
