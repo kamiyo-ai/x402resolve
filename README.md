@@ -6,6 +6,7 @@ Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessme
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Anchor](https://img.shields.io/badge/Anchor-0.31.1-663399)](https://www.anchor-lang.com/)
+[![Tests](https://img.shields.io/badge/tests-integration%20%7C%20unit-green.svg)](packages/)
 
 ## Overview
 
