@@ -25,10 +25,9 @@ Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
 | x402Resolve (All-in) | $2-8 | $200-800 | 2-48 hours | $2,400-9,600 |
 | **Savings** | **$27-48** | **$2,700-4,800** | **97-99% faster** | **$32,400-57,600/year** |
 
-**Traditional:** $35-50/dispute (chargeback + processing + admin)
-**x402Resolve:** $2-8/dispute (ML inference $0.5-2 + agent compute $0.3-1.5 + infrastructure $1-3 + on-chain $0.02)
-
-**84-95% cost reduction**
+- **Traditional:** $35-50/dispute (chargeback + processing + admin)
+- **x402Resolve:** $2-8/dispute (ML inference $0.5-2 + agent compute $0.3-1.5 + infrastructure $1-3 + on-chain $0.02)
+- **84-95% cost reduction**
 
 ## Features
 
