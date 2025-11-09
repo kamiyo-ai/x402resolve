@@ -421,9 +421,10 @@
             transition: all var(--transition-base);
             cursor: pointer;
             border-radius: 0 !important;
-            text-transform: none !important;
+            text-transform: uppercase !important;
             overflow: visible;
             z-index: 1;
+            white-space: nowrap;
         }
 
         .btn-magenta-outline::before {
@@ -832,12 +833,9 @@
             font-size: 0.85rem;
         }
 
-        /* Force no text-transform on all buttons */
-        button:not(.tab),
-        .btn-magenta-outline,
-        .wallet-connect-btn,
-        .copy-button {
-            text-transform: none !important;
+        /* Uppercase text for wallet connect button */
+        .wallet-connect-btn {
+            text-transform: uppercase !important;
         }
 
         .explorer-link {
@@ -2403,7 +2401,7 @@ pub mod x402_escrow {
 
                     this.textElement.textContent = scrambled;
                     progress++;
-                }, 45);
+                }, 25);
             }
 
             descrambleLetters() {
@@ -2429,7 +2427,7 @@ pub mod x402_escrow {
 
                     this.textElement.textContent = scrambled;
                     progress--;
-                }, 35);
+                }, 20);
             }
 
             updateText(newText) {
