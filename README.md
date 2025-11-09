@@ -104,35 +104,6 @@ Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
 - Reputation tracking for agents and APIs
 - Rate limiting with verification tiers
 
-## Quick Start
-
-### API Provider
-
-```typescript
-import { x402PaymentMiddleware } from '@x402resolve/middleware';
-
-app.use('/api/*', x402PaymentMiddleware({
-  programId: ESCROW_PROGRAM_ID,
-  connection,
-  price: 0.001,
-}));
-```
-
-### Agent/Consumer
-
-```typescript
-import { AutonomousServiceAgent } from '@x402resolve/agent-client';
-
-const agent = new AutonomousServiceAgent({
-  keypair,
-  connection,
-  programId: ESCROW_PROGRAM_ID,
-  qualityThreshold: 85,
-});
-
-const result = await agent.consumeAPI(url, params, { expectedSchema });
-```
-
 ## Architecture
 
 ### High-Level Flow
