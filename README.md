@@ -379,30 +379,13 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 
 ## Roadmap
 
-**Current (Q4 2024)**
-- [Live] Switchboard On-Demand oracle integration
-- [Live] HTTP 402 middleware for Express
-- [Live] TypeScript SDK with reputation tracking
-- [Live] Quality-based sliding-scale refunds
-- [In Progress] Multi-oracle support (custom endpoints)
-
-**Q1 2025**
-- SPL token escrows (USDC/USDT/PYUSD)
-- Enhanced quality scoring algorithms
-- Additional framework middleware (FastAPI, Next.js)
-- Improved dispute resolution UI
-
-**Q2 2025**
-- Cross-chain bridging (Wormhole)
-- Pyth price feeds for fiat-pegged escrows
-- Agent framework adapters (LangChain, AutoGPT)
-- Advanced reputation scoring (ML-based)
-
-**Future**
-- Chainlink CCIP for cross-chain disputes
-- Metaplex NFT-gated API access
-- Jupiter aggregator integration for token swaps
-- Governance token for protocol parameters
+| Timeline | Status | Features |
+|----------|--------|----------|
+| **Current (Q4 2024)** | [Live] | Switchboard On-Demand oracle, HTTP 402 middleware (Express), TypeScript SDK with reputation tracking, Quality-based sliding-scale refunds |
+| **Current (Q4 2024)** | [In Progress] | Multi-oracle support (custom endpoints) |
+| **Q1 2025** | Planned | SPL token escrows (USDC/USDT/PYUSD), Enhanced quality scoring algorithms, Framework middleware (FastAPI, Next.js), Dispute resolution UI |
+| **Q2 2025** | Planned | Cross-chain bridging (Wormhole), Pyth price feeds for fiat-pegged escrows, Agent framework adapters (LangChain, AutoGPT), ML-based reputation scoring |
+| **Future** | Research | Chainlink CCIP for cross-chain disputes, Metaplex NFT-gated API access, Jupiter aggregator integration, Governance token |
 
 ## License
 
