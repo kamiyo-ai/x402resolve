@@ -12,6 +12,12 @@ Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessme
 [![Tests](https://img.shields.io/badge/tests-integration%20%7C%20unit-green.svg)](packages/)
 [![Docs](https://img.shields.io/badge/docs-API%20examples-success)](docs/API_EXAMPLES.md)
 
+## Problem
+
+HTTP 402 APIs lack trustless quality assurance. Clients pay upfront with no recourse for poor data. Traditional chargebacks take 30-90 days and cost $35-50 per dispute. Providers face fraud risk and admin overhead.
+
+**x402Resolve fixes this:** Oracle-verified quality assessment triggers automatic sliding-scale refunds (0-100%) on-chain. Payment released only after quality validation. 2-48 hour resolution at $2-8 per dispute.
+
 ## Overview
 
 PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-scale refunds based on oracle quality assessment. No admin keys, no custody. Quality verified before payment release.
@@ -201,19 +207,85 @@ Refund logic determined by oracle. Typical mapping:
 - Score 50-79 → Partial refund
 - Score ≥ 80 → No refund
 
-## Installation
+## Getting Started
+
+### 1. Install SDK/Middleware
+
+**For API Providers:**
+```bash
+npm install @x402resolve/middleware @solana/web3.js
+```
+
+**For AI Agents:**
+```bash
+npm install @kamiyo/x402-sdk @solana/web3.js
+```
+
+### 2. API Provider Setup
+
+```typescript
+import express from 'express';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { x402PaymentMiddleware } from '@x402resolve/middleware';
+
+const app = express();
+const connection = new Connection('https://api.devnet.solana.com');
+
+app.use('/api/premium/*', x402PaymentMiddleware({
+  programId: new PublicKey('E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n'),
+  connection,
+  price: 0.001,
+  qualityGuarantee: true
+}));
+
+app.get('/api/premium/data', (req, res) => {
+  res.json({ data: 'protected content', quality_score: 95 });
+});
+```
+
+### 3. AI Agent Setup
+
+```typescript
+import { KamiyoClient } from '@kamiyo/x402-sdk';
+import { Connection, Keypair } from '@solana/web3.js';
+
+const connection = new Connection('https://api.devnet.solana.com');
+const wallet = Keypair.fromSecretKey(/* your key */);
+
+const client = new KamiyoClient({
+  apiUrl: 'https://api.example.com',
+  chain: 'solana',
+  walletPublicKey: wallet.publicKey
+});
+
+// Pay with escrow
+const payment = await client.pay({
+  amount: 0.001,
+  recipient: new PublicKey('API_PROVIDER'),
+  enableEscrow: true
+});
+
+// Call API
+const response = await fetch('https://api.example.com/data', {
+  headers: { 'X-Payment-Proof': payment.escrowAddress }
+});
+
+// Auto-dispute if low quality
+if (response.quality_score < 80) {
+  await client.fileDispute({
+    transactionId: payment.transactionId,
+    qualityScore: response.quality_score
+  });
+}
+```
+
+### 4. Local Development (Build from Source)
 
 ```bash
 git clone https://github.com/kamiyo-ai/x402resolve
 cd x402resolve
 npm install
-```
-
-### Build Program
-
-```bash
-cd packages/x402-escrow
-anchor build
+cd packages/x402-escrow && anchor build
 anchor deploy --provider.cluster devnet
 ```
 
@@ -235,6 +307,43 @@ anchor deploy --provider.cluster devnet
 - Rate limiting by verification tier
 
 See [SECURITY.md](./SECURITY.md) for details.
+
+## API Reference
+
+### SDK Methods
+
+| Method | Parameters | Returns | Description |
+|--------|-----------|---------|-------------|
+| `client.pay()` | `{ amount, recipient, enableEscrow }` | `{ token, escrowAddress, transactionId }` | Create payment with optional escrow |
+| `client.fileDispute()` | `{ transactionId, qualityScore, evidence }` | `Promise<void>` | File dispute for poor quality |
+| `client.getDisputeStatus()` | `transactionId: string` | `{ status, refundPercentage }` | Get dispute resolution status |
+| `escrow.createEscrow()` | `{ api, amount, timeLock }` | `PublicKey` | Create escrow account |
+| `escrow.markDisputed()` | `escrowPDA: PublicKey` | `Transaction` | Mark escrow as disputed |
+| `escrow.releaseFunds()` | `escrowPDA: PublicKey` | `Transaction` | Release funds to API provider |
+
+### Middleware Configuration
+
+```typescript
+x402PaymentMiddleware({
+  programId: PublicKey,      // Escrow program ID
+  connection: Connection,    // Solana RPC connection
+  price: number,            // Price in SOL
+  realm: string,            // API identifier
+  qualityGuarantee: boolean // Enable quality refunds (default: false)
+})
+```
+
+### Error Handling
+
+| Error Code | Message | Solution |
+|------------|---------|----------|
+| `PAYMENT_REQUIRED` | No payment proof provided | Include `X-Payment-Proof` header with escrow address |
+| `INVALID_ESCROW` | Escrow account not found | Verify escrow creation succeeded |
+| `ESCROW_EXPIRED` | Time lock expired | Create new escrow |
+| `QUALITY_TOO_LOW` | Quality below threshold | Review quality scoring logic |
+| `RATE_LIMIT_EXCEEDED` | Too many requests | Wait or upgrade verification tier |
+
+Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 
 ## Documentation
 
