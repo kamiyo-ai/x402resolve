@@ -72,25 +72,12 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 
 ## Ecosystem
 
-**Agent Frameworks** - Drop-in payment layer for autonomous agents
-- Compatible with LangChain tool calling patterns
-- Works with AutoGPT API consumption flows
-- Integrates with any HTTP client (axios, fetch, etc.)
-
-**Solana DeFi** - Composable with existing protocols
-- SPL token support (planned)
-- Solana Pay compatible transaction format
-- Jupiter/Orca integration for token swaps → escrow (planned)
-
-**Oracle Networks** - Multi-oracle quality verification
-- Switchboard On-Demand (live)
-- Pyth price feeds for fiat-pegged escrows (planned)
-- Custom oracle endpoints (configurable)
-
-**API Standards** - RFC-compliant design
-- HTTP 402 Payment Required (RFC 9110)
-- OpenAPI 3.0 compatible middleware
-- Works with Express, FastAPI, Next.js API routes
+| Category | Description | Integrations |
+|----------|-------------|--------------|
+| **Agent Frameworks** | Drop-in payment layer for autonomous agents | LangChain tool calling, AutoGPT flows, any HTTP client (axios, fetch) |
+| **Solana DeFi** | Composable with existing protocols | SPL tokens (planned), Solana Pay format, Jupiter/Orca swaps (planned) |
+| **Oracle Networks** | Multi-oracle quality verification | Switchboard On-Demand (live), Pyth feeds (planned), custom endpoints |
+| **API Standards** | RFC-compliant design | HTTP 402 (RFC 9110), OpenAPI 3.0, Express/FastAPI/Next.js |
 
 ## Economics
 
