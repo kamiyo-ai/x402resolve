@@ -25,25 +25,10 @@ Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
 | x402Resolve (All-in) | $2-8 | $200-800 | 2-48 hours | $2,400-9,600 |
 | **Savings** | **$27-48** | **$2,700-4,800** | **97-99% faster** | **$32,400-57,600/year** |
 
-### Cost Breakdown (Production Reality)
+**Traditional:** $35-50/dispute (chargeback + processing + admin)
+**x402Resolve:** $2-8/dispute (ML inference $0.5-2 + agent compute $0.3-1.5 + infrastructure $1-3 + on-chain $0.02)
 
-**Traditional Payment Disputes:**
-- Chargeback fee: $15-25
-- Processing fee: $15-25
-- Administrative overhead: $5-15
-- **Total: $35-50/dispute**
-
-**x402Resolve (All-in per dispute):**
-- Solana transactions: $0.005-0.02
-- Oracle ML inference: $0.50-2.00 (GPU compute, API calls)
-- Agent runtime: $0.30-1.50 (compute, memory, storage)
-- RPC infrastructure: $0.10-0.50 (dedicated nodes, rate limits)
-- Monitoring/logging: $0.05-0.20
-- Data storage: $0.05-0.30 (dispute records, attestations)
-- Network overhead: $1-3 (retries, confirmations, fallbacks)
-- **Total: $2-8/dispute**
-
-**Cost reduction: 84-95%** (not 99%+ fairy tales)
+**84-95% cost reduction**
 
 ## Features
 
