@@ -398,11 +398,11 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 ## Roadmap
 
 **Current (Q4 2024)**
-- ✅ Switchboard On-Demand oracle integration
-- ✅ HTTP 402 middleware for Express
-- ✅ TypeScript SDK with reputation tracking
-- ✅ Quality-based sliding-scale refunds
-- 🔄 Multi-oracle support (custom endpoints)
+- [Live] Switchboard On-Demand oracle integration
+- [Live] HTTP 402 middleware for Express
+- [Live] TypeScript SDK with reputation tracking
+- [Live] Quality-based sliding-scale refunds
+- [In Progress] Multi-oracle support (custom endpoints)
 
 **Q1 2025**
 - SPL token escrows (USDC/USDT/PYUSD)
