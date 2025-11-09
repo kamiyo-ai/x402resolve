@@ -1366,7 +1366,9 @@
                     </p>
                 </div>
 
-                <button onclick="runMultiOracle()" id="oracleBtn" class="btn-magenta-outline">Run on-chain quality assessment</button>
+                <button onclick="runMultiOracle()" id="oracleBtn" class="btn-magenta-outline">
+                    <span id="oracleBtnText" style="position: relative; z-index: 10; letter-spacing: 0.5px;">Run on-chain quality assessment</span>
+                </button>
                 <div id="oracleProgress" style="width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; display: none; position: relative;">
                     <div id="oracleProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff44f5, #00d9ff, #ff44f5); background-size: 200% 100%; animation: gradientFlow 2s linear infinite; transition: width 0.3s ease; position: relative;">
                         <div style="position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.3) 8px, rgba(0,0,0,0.3) 9px);"></div>
@@ -2353,21 +2355,22 @@ pub mod x402_escrow {
 
         // Scramble text effect for buttons
         class ScrambleText {
-            constructor(element, originalText) {
-                this.element = element;
+            constructor(buttonElement, textElement, originalText) {
+                this.button = buttonElement;
+                this.textElement = textElement;
                 this.originalText = originalText;
                 this.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 this.scrambleInterval = null;
                 this.isHovering = false;
                 this.enabled = true;
 
-                // Bind event listeners
-                this.element.addEventListener('mouseenter', () => this.onMouseEnter());
-                this.element.addEventListener('mouseleave', () => this.onMouseLeave());
+                // Bind event listeners to button
+                this.button.addEventListener('mouseenter', () => this.onMouseEnter());
+                this.button.addEventListener('mouseleave', () => this.onMouseLeave());
             }
 
             onMouseEnter() {
-                if (!this.enabled || this.element.disabled) return;
+                if (!this.enabled || this.button.disabled) return;
                 this.isHovering = true;
                 this.scrambleLetters();
             }
@@ -2398,7 +2401,7 @@ pub mod x402_escrow {
                         })
                         .join("");
 
-                    this.element.textContent = scrambled;
+                    this.textElement.textContent = scrambled;
                     progress++;
                 }, 45);
             }
@@ -2410,7 +2413,7 @@ pub mod x402_escrow {
                 this.scrambleInterval = setInterval(() => {
                     if (progress <= 0) {
                         clearInterval(this.scrambleInterval);
-                        this.element.textContent = this.originalText;
+                        this.textElement.textContent = this.originalText;
                         return;
                     }
 
@@ -2424,7 +2427,7 @@ pub mod x402_escrow {
                         })
                         .join("");
 
-                    this.element.textContent = scrambled;
+                    this.textElement.textContent = scrambled;
                     progress--;
                 }, 35);
             }
@@ -2432,7 +2435,7 @@ pub mod x402_escrow {
             updateText(newText) {
                 this.originalText = newText;
                 if (!this.isHovering) {
-                    this.element.textContent = newText;
+                    this.textElement.textContent = newText;
                 }
             }
 
@@ -2445,8 +2448,9 @@ pub mod x402_escrow {
         let oracleBtnScramble = null;
         document.addEventListener('DOMContentLoaded', () => {
             const oracleBtn = document.getElementById('oracleBtn');
-            if (oracleBtn) {
-                oracleBtnScramble = new ScrambleText(oracleBtn, oracleBtn.textContent);
+            const oracleBtnText = document.getElementById('oracleBtnText');
+            if (oracleBtn && oracleBtnText) {
+                oracleBtnScramble = new ScrambleText(oracleBtn, oracleBtnText, oracleBtnText.textContent.trim());
             }
         });
 
