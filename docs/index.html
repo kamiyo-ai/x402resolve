@@ -1379,7 +1379,7 @@
                 </div>
 
                 <button onclick="runMultiOracle()" id="oracleBtn" class="btn-magenta-outline">
-                    <span id="oracleBtnText" style="position: relative; z-index: 10; letter-spacing: 0.5px;">Run on-chain quality assessment</span>
+                    <span id="oracleBtnText" style="position: relative; z-index: 10; letter-spacing: 0.5px; display: inline-block; min-width: 280px;">Run on-chain quality assessment</span>
                 </button>
                 <div id="oracleProgress" style="width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; display: none; position: relative;">
                     <div id="oracleProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff44f5, #00d9ff, #ff44f5); background-size: 200% 100%; animation: gradientFlow 2s linear infinite; transition: width 0.3s ease; position: relative;">
@@ -2421,9 +2421,9 @@ pub mod x402_escrow {
             descrambleLetters() {
                 if (this.scrambleInterval) clearInterval(this.scrambleInterval);
 
-                let progress = this.originalText.length;
+                let progress = this.originalText.length - 1;
                 this.scrambleInterval = setInterval(() => {
-                    if (progress <= 0) {
+                    if (progress < 0) {
                         clearInterval(this.scrambleInterval);
                         this.textElement.textContent = this.originalText;
                         return;
@@ -2433,7 +2433,7 @@ pub mod x402_escrow {
                         .split("")
                         .map((char, index) => {
                             if (char === ' ') return ' ';
-                            return index >= progress
+                            return index > progress
                                 ? this.originalText[index]
                                 : this.chars[Math.floor(Math.random() * this.chars.length)];
                         })
