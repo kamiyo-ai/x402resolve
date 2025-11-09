@@ -12,6 +12,7 @@ Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessme
 [![Tests](https://img.shields.io/badge/tests-unit%20%7C%20integration%20%7C%20e2e%20%7C%20security-success)](TESTING.md)
 [![Coverage](https://img.shields.io/badge/coverage-program%20%7C%20SDK%20%7C%20oracle-brightgreen)](TESTING.md)
 [![Docs](https://img.shields.io/badge/docs-API%20examples-success)](docs/API_EXAMPLES.md)
+[![MCP](https://img.shields.io/badge/MCP-8%20tools-purple?logo=anthropic)](packages/mcp-server/README.md)
 
 ## Problem
 
@@ -51,6 +52,73 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 ```
 
 **What you get:** Automatic escrows, quality-based refunds, dispute resolution, reputation tracking, rate limiting—all handled on-chain.
+
+## MCP Server (AI Agent Integration)
+
+**The first MCP server for HTTP 402 payments** - enabling Claude and autonomous agents to autonomously create escrows, assess data quality, and file disputes on Solana.
+
+### What is MCP?
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) is Anthropic's open standard for connecting AI systems to external tools and data sources. Our MCP server gives Claude Desktop, LangChain, AutoGPT, and other AI agents the ability to:
+
+- Create payment escrows with quality guarantees
+- Assess API response quality
+- File disputes for poor data
+- Check escrow status
+- Verify API provider reputation
+- Estimate refunds based on quality scores
+
+**8 production-ready tools** for trustless agent-to-API transactions.
+
+### Quick Start (Claude Desktop)
+
+1. **Install dependencies:**
+```bash
+cd packages/mcp-server
+pip3 install -r requirements.txt
+```
+
+2. **Configure Claude Desktop:**
+```json
+{
+  "mcpServers": {
+    "x402resolve": {
+      "command": "python3",
+      "args": ["/absolute/path/to/packages/mcp-server/server.py"],
+      "env": {
+        "SOLANA_RPC_URL": "https://api.devnet.solana.com",
+        "X402_PROGRAM_ID": "E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n"
+      }
+    }
+  }
+}
+```
+
+3. **Use in Claude:**
+```
+User: "Create a 0.1 SOL escrow for the weather API"
+Claude: I'll use the create_escrow tool...
+✓ Escrow created: EscrowABC123...
+  Amount: 0.1 SOL
+  Quality guarantee: Enabled
+```
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `create_escrow` | Lock payment with quality guarantee |
+| `call_api_with_escrow` | Unified flow: create + call + assess |
+| `assess_data_quality` | Evaluate completeness, freshness, schema compliance |
+| `file_dispute` | Submit dispute for poor quality data |
+| `check_escrow_status` | Monitor escrow state |
+| `get_api_reputation` | Check provider trust score |
+| `verify_payment` | Confirm payment received |
+| `estimate_refund` | Calculate refund by quality score |
+
+**Full Documentation:** [packages/mcp-server/README.md](packages/mcp-server/README.md)
+
+**Hackathon Submission:** [packages/mcp-server/HACKATHON_SUBMISSION.md](packages/mcp-server/HACKATHON_SUBMISSION.md)
 
 ## Why Solana?
 
@@ -292,6 +360,7 @@ anchor deploy --provider.cluster devnet
 - `x402-escrow`: Solana program (Anchor)
 - `x402-sdk`: TypeScript client library
 - `x402-middleware`: HTTP 402 middleware (Express/FastAPI)
+- `mcp-server`: Model Context Protocol server for AI agents (Claude, LangChain)
 - `agent-client`: Autonomous agent implementation
 - `switchboard-function`: Decentralized oracle function
 
