@@ -410,7 +410,8 @@
         }
 
         .btn-magenta-outline {
-            background: var(--color-magenta) !important;
+            position: relative;
+            background: transparent !important;
             color: var(--color-text-primary) !important;
             border: none !important;
             width: auto !important;
@@ -419,12 +420,40 @@
             letter-spacing: 0.1em;
             transition: all var(--transition-base);
             cursor: pointer;
-            border-radius: var(--radius-sm);
+            border-radius: 0 !important;
             text-transform: none !important;
+            overflow: visible;
+            z-index: 1;
         }
 
-        .btn-magenta-outline:hover:not(:disabled) {
-            background: var(--color-magenta-hover) !important;
+        .btn-magenta-outline::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px dotted;
+            border-image: linear-gradient(to right, var(--color-magenta), var(--color-cyan)) 1;
+            transform: skewX(-45deg) translateX(4px);
+            z-index: -1;
+            transition: all 0.3s;
+        }
+
+        .btn-magenta-outline::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-right: 1px dotted;
+            border-image: linear-gradient(to bottom, var(--color-magenta), var(--color-cyan)) 1;
+            transform: skewX(-45deg) translateX(4px);
+            z-index: -1;
+            transition: all 0.3s;
+        }
+
+        .btn-magenta-outline:hover:not(:disabled)::before {
+            border-image: linear-gradient(to right, var(--color-cyan), var(--color-magenta)) 1;
+        }
+
+        .btn-magenta-outline:hover:not(:disabled)::after {
+            border-image: linear-gradient(to right, var(--color-cyan), var(--color-magenta)) 1;
         }
 
         .btn-magenta-outline:disabled {
@@ -1040,36 +1069,60 @@
         }
 
         .refund-modal {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            border: 2px solid;
-            border-image: var(--gradient-primary) 1;
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            max-width: 600px;
+            background: #000;
+            border: 2px solid #00d9ff;
+            border-radius: 12px;
+            padding: 0;
+            max-width: 380px;
             width: 90%;
             position: relative;
             animation: slideUp 0.4s ease;
-            box-shadow: 0 20px 60px rgba(255, 0, 255, 0.3);
+            box-shadow: 0 0 60px rgba(0, 217, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .refund-modal-badge {
+            background: linear-gradient(90deg, #ff00ff, #ff44f5);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: inline-block;
+            width: auto;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .refund-modal-content {
+            padding: 40px 30px 30px;
         }
 
         .refund-modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             background: none;
             border: none;
-            color: var(--color-text-tertiary);
-            font-size: 28px;
+            color: #666;
+            font-size: 24px;
             cursor: pointer;
-            transition: var(--transition-base);
+            transition: all 0.2s;
             padding: 0;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             line-height: 1;
+            z-index: 100;
         }
 
         .refund-modal-close:hover {
-            color: var(--color-text-primary);
+            color: #00d9ff;
             transform: rotate(90deg);
         }
 
@@ -1094,35 +1147,27 @@
         }
 
         .refund-amount-display {
-            background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 217, 255, 0.1));
-            border: 2px solid;
-            border-image: var(--gradient-primary) 1;
-            border-radius: var(--radius-md);
-            padding: 30px;
-            margin: 30px 0;
             text-align: center;
+            padding: 30px 20px 20px;
         }
 
         .refund-amount-value {
-            font-size: 4rem;
-            font-weight: var(--font-weight-bold);
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.2;
-            margin-bottom: 10px;
+            font-size: 3.5rem;
+            font-weight: 300;
+            color: #00d9ff;
+            line-height: 1;
+            margin-bottom: 8px;
         }
 
         .refund-amount-label {
-            color: var(--color-text-secondary);
-            font-size: var(--font-size-lg);
-            margin-top: 10px;
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
         .refund-percentage {
-            color: var(--color-text-tertiary);
-            font-size: var(--font-size-base);
+            color: #666;
+            font-size: 13px;
             margin-top: 5px;
         }
 
@@ -1179,45 +1224,37 @@
 
         .modal-actions {
             display: flex;
-            gap: 15px;
+            justify-content: center;
             margin-top: 30px;
         }
 
-        .modal-btn {
-            flex: 1;
-            padding: 15px 30px;
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-base);
-            font-weight: var(--font-weight-bold);
-            cursor: pointer;
-            transition: var(--transition-base);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .modal-btn-primary {
-            background: var(--gradient-primary);
+        .modal-btn-skewed {
+            position: relative;
+            padding: 12px 24px;
+            background: transparent;
             color: white;
-            border: none;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            overflow: visible;
+            margin-left: -32px;
         }
 
-        .modal-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.4);
+        .modal-btn-skewed:hover span:nth-child(2) {
+            border-image: linear-gradient(to right, cyan, magenta) 1;
         }
 
-        .modal-btn-secondary {
-            background: var(--color-bg-tertiary);
-            color: var(--color-text-secondary);
-            border: 1px solid var(--color-border-secondary);
+        .modal-btn-skewed:hover span:nth-child(3) {
+            border-image: linear-gradient(to right, cyan, magenta) 1;
         }
 
-        .modal-btn-secondary:hover {
-            background: var(--color-bg-secondary);
-            border-color: var(--color-border-primary);
+        .modal-btn-skewed:hover span:nth-child(4) {
+            border-image: linear-gradient(to right, cyan, magenta) 1;
+            width: 0;
         }
 
         @keyframes fadeIn {
@@ -1281,9 +1318,9 @@
         <!-- Tab 1: Live Demo -->
         <div id="live-tab" class="tab-content active">
             <div class="card">
-                <h2><span>🤖</span> Multi-Oracle Quality Verification</h2>
+                <h2><span>🤖</span> Live Dispute Resolution</h2>
                 <div class="alert alert-info">
-                    Real-time quality scoring using Ed25519-signed oracle assessments. Production system supports Switchboard On-Demand oracles for decentralized verification.
+                    Real escrow transactions on Solana Devnet with oracle-verified quality assessment.
                 </div>
 
                 <div class="card-bg p-20 mb-20 mt-20">
@@ -1808,8 +1845,8 @@ pub mod x402_escrow {
             console.log('Creating escrow with transaction ID:', transactionId);
 
             try {
-                // Step 1: Ensure reputation accounts exist
-                btn.textContent = 'Initializing Reputation Accounts...';
+                // Step 1: Ensure reputation accounts exist (batched)
+                btn.textContent = 'Step 1/3: Initializing Reputation Accounts...';
                 progressFill.style.width = '10%';
 
                 try {
@@ -1817,33 +1854,39 @@ pub mod x402_escrow {
                         walletPublicKey,
                         walletPublicKey
                     );
-                    if (agentRepInit.transaction) {
-                        const sig1 = await window.oracleSystem.sendAndConfirm(agentRepInit.transaction, walletPublicKey);
-                        console.log('Agent reputation initialized:', sig1);
-                        await sleep(1000);
-                    }
-                } catch (e) {
-                    console.log('Agent reputation exists or error:', e.message);
-                }
-
-                try {
                     const apiRepInit = await window.oracleSystem.ensureReputationAccount(
                         apiPublicKey,
                         walletPublicKey
                     );
+
+                    // Batch both reputation initializations if needed
+                    const batchedTx = new solanaWeb3.Transaction();
+                    let needsBatch = false;
+
+                    if (agentRepInit.transaction) {
+                        agentRepInit.transaction.instructions.forEach(ix => batchedTx.add(ix));
+                        needsBatch = true;
+                    }
                     if (apiRepInit.transaction) {
-                        const sig2 = await window.oracleSystem.sendAndConfirm(apiRepInit.transaction, walletPublicKey);
-                        console.log('API reputation initialized:', sig2);
+                        apiRepInit.transaction.instructions.forEach(ix => batchedTx.add(ix));
+                        needsBatch = true;
+                    }
+
+                    if (needsBatch) {
+                        const sig = await window.oracleSystem.sendAndConfirm(batchedTx, walletPublicKey);
+                        console.log('Reputation accounts initialized (batched):', sig);
                         await sleep(1000);
+                    } else {
+                        console.log('Both reputation accounts already exist');
                     }
                 } catch (e) {
-                    console.log('API reputation exists or error:', e.message);
+                    console.log('Reputation initialization error:', e.message);
                 }
 
                 progressFill.style.width = '25%';
 
                 // Step 2: Create Escrow
-                btn.textContent = 'Creating escrow...';
+                btn.textContent = 'Step 2/3: Creating Escrow...';
                 console.log('Calling createEscrow...');
                 const escrowTx = await window.oracleSystem.createEscrow(
                     walletPublicKey,
@@ -1868,7 +1911,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 3: Generate Oracle Assessment
-                btn.textContent = 'Oracle Assessing Quality...';
+                btn.textContent = 'Step 3/3: Oracle Assessing Quality...';
                 progressFill.style.width = '65%';
                 const assessment = await window.oracleSystem.generateQualityAssessment(transactionId);
 
@@ -1966,7 +2009,7 @@ pub mod x402_escrow {
                 await sleep(2000);
 
                 // Step 4: Resolve Dispute with Oracle Signature
-                btn.textContent = 'Resolving dispute on-chain...';
+                btn.textContent = 'Step 3/3: Resolving dispute on-chain...';
                 progressFill.style.width = '90%';
                 const resolveTx = await window.oracleSystem.resolveDispute(transactionId, assessment);
                 const resolveSig = await window.oracleSystem.sendAndConfirm(resolveTx, walletPublicKey);
@@ -2060,220 +2103,6 @@ pub mod x402_escrow {
                 progressBar.style.display = 'none';
             }
         }
-
-        // Live Dispute Form
-        document.getElementById('disputeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.textContent = 'Submitting to Solana...';
-
-            // Show timeline
-            document.getElementById('statusDisplay').style.display = 'none';
-            document.getElementById('timelineDisplay').style.display = 'block';
-            document.getElementById('resultsDisplay').style.display = 'none';
-
-            let txId = 'tx_' + Math.random().toString(36).substring(2, 15);
-            let realTransaction = false;
-
-            // Step 1: Submit to Solana (real transaction if wallet connected)
-            document.getElementById('step1').classList.add('active');
-
-            if (walletConnected && walletPublicKey) {
-                try {
-                    showStatus('Creating escrow transaction...', 'info');
-
-                    const connection = new solanaWeb3.Connection('https://api.devnet.solana.com');
-                    const escrowAmount = parseFloat(document.getElementById('escrowAmount').value);
-                    const lamports = escrowAmount * solanaWeb3.LAMPORTS_PER_SOL;
-
-                    // Create a simple transfer transaction as a demo
-                    // In production, this would call the actual x402 escrow program
-                    const programId = new solanaWeb3.PublicKey('AFmBBw7kbrnwhhzYadAMCMh4BBBZcZdS3P7Z6vpsqsSR');
-
-                    const transaction = new solanaWeb3.Transaction().add(
-                        solanaWeb3.SystemProgram.transfer({
-                            fromPubkey: walletPublicKey,
-                            toPubkey: programId,
-                            lamports: Math.floor(lamports)
-                        })
-                    );
-
-                    // Get recent blockhash
-                    const { blockhash } = await connection.getLatestBlockhash();
-                    transaction.recentBlockhash = blockhash;
-                    transaction.feePayer = walletPublicKey;
-
-                    // Sign and send transaction
-                    btn.textContent = 'Sign transaction in wallet...';
-                    const signed = await walletProvider.signAndSendTransaction(transaction);
-                    txId = signed.signature || signed;
-                    realTransaction = true;
-
-                    // Wait for confirmation
-                    btn.textContent = 'Confirming transaction...';
-                    await connection.confirmTransaction(txId);
-
-                    document.getElementById('step1-detail').innerHTML = `
-                        TX: ${txId.substring(0, 8)}...${txId.substring(txId.length - 8)}
-                        <br><a href="https://explorer.solana.com/tx/${txId}?cluster=devnet"
-                           target="_blank" class="explorer-link" style="margin-top: 5px;">
-                           View on Explorer
-                        </a>
-                    `;
-                    showStatus('Transaction confirmed!', 'success');
-
-                } catch (err) {
-                    console.error('Transaction failed:', err);
-                    if (err.message && err.message.includes('User rejected')) {
-                        showStatus('Transaction cancelled', 'error');
-                    } else {
-                        showStatus('Transaction failed - using simulation', 'error');
-                    }
-                    // Fall back to simulation
-                    txId = 'tx_' + Math.random().toString(36).substring(2, 15);
-                    document.getElementById('step1-detail').textContent = `TX: ${txId} (simulated)`;
-                }
-            } else {
-                // Simulation mode
-                document.getElementById('step1-detail').innerHTML = `
-                    TX: ${txId} (simulated)
-                    <br><span style="color: #f59e0b; font-size: 0.85rem;">
-                        Connect wallet for real transactions
-                    </span>
-                `;
-            }
-
-            document.getElementById('transactionId').value = txId;
-            await sleep(2000);
-
-            // Step 2: Oracle analysis
-            document.getElementById('step2').classList.add('active');
-            btn.textContent = 'Oracle Analyzing...';
-            await sleep(3000);
-
-            // Calculate quality based on dispute reason
-            const reason = document.getElementById('disputeReason').value;
-            const scores = {
-                'incomplete': { semantic: 0.72, completeness: 0.35, freshness: 0.85 },
-                'wrong_protocol': { semantic: 0.28, completeness: 0.65, freshness: 0.90 },
-                'wrong_chain': { semantic: 0.25, completeness: 0.70, freshness: 0.85 },
-                'outdated': { semantic: 0.82, completeness: 0.90, freshness: 0.15 },
-                'inaccurate': { semantic: 0.30, completeness: 0.60, freshness: 0.75 }
-            };
-
-            const score = scores[reason];
-            const qualityScore = Math.round((score.semantic * 0.4 + score.completeness * 0.4 + score.freshness * 0.2) * 100);
-
-            // Step 3: Signature
-            document.getElementById('step3').classList.add('active');
-            await sleep(1500);
-
-            // Step 4: Refund
-            document.getElementById('step4').classList.add('active');
-            await sleep(1000);
-
-            // Calculate refund
-            const escrowAmount = parseFloat(document.getElementById('escrowAmount').value);
-            let refundPct = 0;
-            if (qualityScore < 50) refundPct = 100;
-            else if (qualityScore < 80) refundPct = Math.round((80 - qualityScore) / 80 * 100);
-
-            const refundAmount = (escrowAmount * refundPct / 100).toFixed(4);
-
-            // Show results
-            document.getElementById('resultsDisplay').innerHTML = `
-                <div class="alert alert-success">
-                    <strong>✅ Dispute Resolved!</strong> Quality verification complete.
-                </div>
-
-                <div style="background: #0a0a0a; padding: 30px 20px; border-radius: 8px; border: 1px solid #222;">
-                    <h3 style="margin-bottom: 15px; font-size: 1rem; color: #888;">Quality Assessment</h3>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0;">
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Overall</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${qualityScore}</div>
-                        </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Semantic</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.semantic * 100)}</div>
-                        </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Complete</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.completeness * 100)}</div>
-                        </div>
-                        <div style="text-align: center; padding: 20px 10px; background: #000; border-radius: 8px; border: 1px solid #1a1a1a;">
-                            <div style="font-size: 0.875rem; color: #888; margin-bottom: 10px;">Fresh</div>
-                            <div class="gradient-text" style="font-size: 2.5rem; font-weight: 300;">${Math.round(score.freshness * 100)}</div>
-                        </div>
-                    </div>
-                </div>
-
-                ${refundPct > 0 ? `
-                    <div style="background: #0a0a0a; padding: 40px 30px; border-radius: 8px; text-align: center; margin-top: 20px; border: 1px solid #222;">
-                        <div style="font-size: 0.875rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">Refund Processed</div>
-                        <div class="gradient-text" style="font-size: 3rem; font-weight: 300; margin: 20px 0;">${refundAmount} SOL</div>
-                        <div style="font-size: 1rem; color: #888; margin-bottom: 10px;">${refundPct}% of ${escrowAmount} SOL escrow</div>
-                        <div style="margin-top: 15px; padding: 10px; background: #0a0a0a; border-radius: 8px; font-size: 0.9rem; font-family: monospace; color: #999;">
-                            ${realTransaction ?
-                                `Solana TX: ${txId.substring(0, 8)}...${txId.substring(txId.length - 8)}` :
-                                `Simulated TX: ${txId}`
-                            }
-                        </div>
-                        ${realTransaction ? `
-                            <a href="https://explorer.solana.com/tx/${txId}?cluster=devnet"
-                               target="_blank" class="explorer-link" style="margin-top: 15px;">
-                               View Transaction on Solana Explorer →
-                            </a>
-                        ` : ''}
-                    </div>
-                ` : `
-                    <div style="text-align: center; padding: 40px 30px; background: #0a0a0a; border-radius: 8px; margin-top: 20px; border: 1px solid #222;">
-                        <div style="font-size: 0.875rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;">No Refund Needed</div>
-                        <p style="color: #888; font-size: 1rem; margin: 10px 0;">Data quality meets standards (score ≥ 80)</p>
-                        ${realTransaction ? `
-                            <div style="margin-top: 15px; padding: 10px; background: #0a0a0a; border-radius: 8px; font-size: 0.9rem; font-family: monospace; color: #999;">
-                                Solana TX: ${txId.substring(0, 8)}...${txId.substring(txId.length - 8)}
-                            </div>
-                            <a href="https://explorer.solana.com/tx/${txId}?cluster=devnet"
-                               target="_blank" class="explorer-link" style="margin-top: 15px;">
-                               View Transaction on Solana Explorer →
-                            </a>
-                        ` : ''}
-                    </div>
-                `}
-
-                <button onclick="resetDispute()" style="margin-top: 20px; background: #6b7280;">
-                    File another dispute
-                </button>
-            `;
-
-            document.getElementById('resultsDisplay').style.display = 'block';
-            btn.textContent = 'Dispute Resolved';
-        });
-
-        function resetDispute() {
-            document.querySelectorAll('.timeline-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            document.getElementById('statusDisplay').style.display = 'flex';
-            document.getElementById('timelineDisplay').style.display = 'none';
-            document.getElementById('resultsDisplay').style.display = 'none';
-            document.getElementById('transactionId').value = '';
-
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = 'Submit to Solana Devnet';
-
-            // Restart demo video
-            const video = document.getElementById('demoVideo');
-            if (video) {
-                video.currentTime = 0;
-                video.play();
-            }
-        }
-
         // Analytics
         function initializeCharts() {
             const ctx = document.getElementById('qualityChart');
@@ -2526,41 +2355,38 @@ pub mod x402_escrow {
     <!-- Refund Modal -->
     <div id="refundModal" class="refund-modal-overlay">
         <div class="refund-modal">
+            <div class="refund-modal-badge">REFUND PROCESSED</div>
             <button class="refund-modal-close" onclick="closeRefundModal()">&times;</button>
 
-            <div class="refund-modal-header">
-                <h2 class="refund-modal-title">Refund Processed</h2>
-                <p class="refund-modal-subtitle">On-chain dispute resolution complete</p>
-            </div>
-
-            <div class="refund-amount-display">
-                <div class="refund-amount-value" id="modalRefundAmount">0.000 SOL</div>
-                <div class="refund-amount-label">Refunded to your wallet</div>
-                <div class="refund-percentage" id="modalRefundPercentage"></div>
-            </div>
-
-            <div class="quality-score-display">
-                <div>
-                    <div class="quality-score-value" id="modalQualityScore">0</div>
-                    <div class="quality-score-label">Quality Score</div>
+            <div class="refund-modal-content">
+                <div class="refund-amount-display">
+                    <div class="refund-amount-value" id="modalRefundAmount">0.000 SOL</div>
+                    <div class="refund-amount-label">Refunded to wallet</div>
+                    <div class="refund-percentage" id="modalRefundPercentage"></div>
                 </div>
-            </div>
 
-            <div style="text-align: center;">
-                <div class="verification-badge">
-                    Ed25519 Signature Verified On-Chain
+                <div style="margin: 20px 0; padding: 15px; background: #0a0a0a; border-radius: 8px; border-left: 3px solid #00d9ff;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #888; font-size: 14px;">Quality Score</span>
+                        <span id="modalQualityScore" style="font-size: 28px; font-weight: 300; color: #f59e0b;">0</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="oracle-info">
-                This demo uses a centralized oracle. Production supports Switchboard On-Demand (Program ID: 7SMYZjQK4ERuUH8b75RLtxAjoKYy1BmE6VFNigYidxjN) for decentralized quality scoring.
-            </div>
+                <div style="text-align: center; margin: 15px 0;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 20px; color: #10b981; font-size: 11px;">
+                        <span>✓</span>
+                        <span>Ed25519 Verified On-Chain</span>
+                    </div>
+                </div>
 
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-secondary" onclick="closeRefundModal()">Close</button>
-                <a id="modalExplorerLink" href="#" target="_blank" class="modal-btn modal-btn-primary">
-                    View on Explorer →
-                </a>
+                <div class="modal-actions" style="margin-top: 25px;">
+                    <a id="modalExplorerLink" href="#" target="_blank" class="modal-btn-skewed">
+                        <span style="position: relative; z-index: 10; margin-left: 32px; letter-spacing: 0.5px;">VIEW ON EXPLORER</span>
+                        <span style="position: absolute; inset: 0; border: 1px dotted; border-image: linear-gradient(to right, magenta, cyan) 1; transform: skewX(-45deg) translateX(16px);"></span>
+                        <span style="position: absolute; inset: 0; border-right: 1px dotted; border-image: linear-gradient(to bottom, magenta, cyan) 1; transform: skewX(-45deg) translateX(16px);"></span>
+                        <span style="position: absolute; bottom: 0; left: -4px; width: 100%; border-bottom: 1px dotted; border-image: linear-gradient(to right, magenta, cyan) 1;"></span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
