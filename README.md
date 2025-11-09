@@ -63,25 +63,12 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 
 ## Use Cases
 
-**AI Agent Marketplaces**
-- Agents auto-pay for API access with quality guarantees
-- Threshold enforcement (e.g., 85% minimum quality)
-- Example: Agent discovers Twitter API → pays 0.001 SOL → auto-refund if data incomplete
-
-**Data Marketplaces**
-- Real-time market data with oracle-verified freshness
-- Completeness and schema validation
-- Example: Financial API → oracle checks timestamp → refund if stale
-
-**Compute Marketplaces**
-- GPU inference APIs with SLA enforcement
-- Response time and accuracy verification
-- Example: Image generation → quality score based on resolution + inference time
-
-**ML Model Endpoints**
-- Pay-per-inference with confidence thresholds
-- Schema validation for structured outputs
-- Example: Sentiment analysis → refund if confidence <90%
+| Use Case | Features | Example |
+|----------|----------|---------|
+| **AI Agent Marketplaces** | Auto-pay with quality guarantees, threshold enforcement (85%+ quality) | Agent calls Twitter API → pays 0.001 SOL → auto-refund if data incomplete |
+| **Data Marketplaces** | Oracle-verified freshness, completeness and schema validation | Financial API → oracle checks timestamp → refund if stale |
+| **Compute Marketplaces** | SLA enforcement, response time and accuracy verification | Image generation → quality score based on resolution + inference time |
+| **ML Model Endpoints** | Pay-per-inference, confidence thresholds, schema validation | Sentiment analysis → refund if confidence <90% |
 
 ## Ecosystem
 
