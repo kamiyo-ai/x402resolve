@@ -1072,11 +1072,9 @@
 
         .refund-modal {
             background: #000;
-            border: 2px solid transparent;
-            border-image: linear-gradient(135deg, #00d9ff, #ff00ff) 1;
             border-radius: 12px;
             padding: 0;
-            max-width: 380px;
+            max-width: 450px;
             width: 90%;
             position: relative;
             animation: slideUp 0.4s ease;
@@ -1085,8 +1083,22 @@
             z-index: 1001;
         }
 
+        .refund-modal::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: linear-gradient(135deg, #00d9ff, #ff00ff);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: -1;
+        }
+
         .refund-modal-badge {
-            background: linear-gradient(90deg, #ff00ff, #ff00ff);
+            background: linear-gradient(90deg, #ff00ff, #00d9ff);
             color: white;
             text-align: center;
             padding: 8px 16px;
