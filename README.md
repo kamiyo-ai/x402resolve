@@ -19,26 +19,31 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
 
-| Method | Cost/Dispute | Total/Month | Resolution Time |
-|--------|--------------|-------------|-----------------|
-| Traditional (Stripe/PayPal) | $35 | $3,500 | 30-90 days |
-| x402Resolve | $0.005 | $0.50 | 48 hours |
-| **Reduction** | **99.98%** | **99.98%** | **98% faster** |
+| Method | Cost/Dispute | Total/Month | Resolution Time | Annual Cost |
+|--------|--------------|-------------|-----------------|-------------|
+| Traditional (Stripe/PayPal) | $35-50 | $3,500-5,000 | 30-90 days | $42,000-60,000 |
+| x402Resolve (All-in) | $2-8 | $200-800 | 2-48 hours | $2,400-9,600 |
+| **Savings** | **$27-48** | **$2,700-4,800** | **97-99% faster** | **$32,400-57,600/year** |
 
-**Annual savings: $41,994** (99.98% cost reduction)
-
-### Cost Breakdown
+### Cost Breakdown (Production Reality)
 
 **Traditional Payment Disputes:**
-- Chargeback fee: $15-20
+- Chargeback fee: $15-25
 - Processing fee: $15-25
-- Administrative overhead: Staff time, documentation
-- **Total per dispute: ~$35**
+- Administrative overhead: $5-15
+- **Total: $35-50/dispute**
 
-**x402Resolve:**
-- Solana transaction: ~$0.001 (0.000005 SOL)
-- Oracle assessment: ~$0.004 (off-chain computation)
-- **Total per dispute: ~$0.005**
+**x402Resolve (All-in per dispute):**
+- Solana transactions: $0.005-0.02
+- Oracle ML inference: $0.50-2.00 (GPU compute, API calls)
+- Agent runtime: $0.30-1.50 (compute, memory, storage)
+- RPC infrastructure: $0.10-0.50 (dedicated nodes, rate limits)
+- Monitoring/logging: $0.05-0.20
+- Data storage: $0.05-0.30 (dispute records, attestations)
+- Network overhead: $1-3 (retries, confirmations, fallbacks)
+- **Total: $2-8/dispute**
+
+**Cost reduction: 84-95%** (not 99%+ fairy tales)
 
 ## Features
 
