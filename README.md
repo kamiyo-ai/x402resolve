@@ -20,6 +20,41 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 **Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
 
+## Quick Integration
+
+Build x402-compliant APIs or agents in **minutes**, not weeks. No custom escrow logic, refund math, or reputation tracking needed.
+
+### API Provider (5 lines)
+
+```typescript
+import { x402PaymentMiddleware } from '@x402resolve/middleware';
+
+app.use('/api/*', x402PaymentMiddleware({
+  programId: new PublicKey('E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n'),
+  connection, price: 0.001, qualityGuarantee: true
+}));
+```
+
+### AI Agent (3 lines)
+
+```typescript
+const escrow = await client.createEscrow({ api: provider, amount: 0.001 });
+const data = await fetch(apiUrl, { headers: { 'X-Payment-Proof': escrow } });
+if (quality < 80) await client.markDisputed(escrow); // Auto-refund
+```
+
+**What you get:** Automatic escrows, quality-based refunds, dispute resolution, reputation tracking, rate limiting—all handled on-chain.
+
+## Why Solana?
+
+**High TPS** → Real-time refunds (2-48 hours vs 30-90 days). No waiting for traditional payment processors.
+
+**PDAs (Program Derived Addresses)** → Keyless escrow security. No admin keys to compromise, no custody risk. Funds locked by cryptographic derivation.
+
+**Switchboard On-Demand** → Decentralized oracle verification. Quality assessment verified on-chain with 300s freshness guarantee. No single point of failure.
+
+**Sub-penny costs** → $0.02/dispute (even with ML inference + infrastructure). Traditional methods cost $35-50.
+
 ## Economics
 
 Cost comparison at 1% dispute rate (100 disputes/month on $5,000 API spend):
