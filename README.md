@@ -9,7 +9,8 @@ Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessme
 [![Anchor](https://img.shields.io/badge/Anchor-0.31.1-663399)](https://www.anchor-lang.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Rust](https://img.shields.io/badge/Rust-1.75-orange?logo=rust)](https://www.rust-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-integration%20%7C%20unit-green.svg)](packages/)
+[![Tests](https://img.shields.io/badge/tests-unit%20%7C%20integration%20%7C%20e2e%20%7C%20security-success)](TESTING.md)
+[![Coverage](https://img.shields.io/badge/coverage-program%20%7C%20SDK%20%7C%20oracle-brightgreen)](TESTING.md)
 [![Docs](https://img.shields.io/badge/docs-API%20examples-success)](docs/API_EXAMPLES.md)
 
 ## Problem
