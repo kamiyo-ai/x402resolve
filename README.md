@@ -432,11 +432,13 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 
 | Timeline | Status | Features |
 |----------|--------|----------|
-| **Current (Q4 2024)** | [Live] | Switchboard On-Demand oracle, HTTP 402 middleware (Express), TypeScript SDK with reputation tracking, Quality-based sliding-scale refunds |
-| **Current (Q4 2024)** | [In Progress] | Multi-oracle support (custom endpoints) |
-| **Q1 2025** | Planned | SPL token escrows (USDC/USDT/PYUSD), Enhanced quality scoring algorithms, Framework middleware (FastAPI, Next.js), Dispute resolution UI |
-| **Q2 2025** | Planned | Cross-chain bridging (Wormhole), Pyth price feeds for fiat-pegged escrows, Agent framework adapters (LangChain, AutoGPT), ML-based reputation scoring |
-| **Future** | Research | Chainlink CCIP for cross-chain disputes, Metaplex NFT-gated API access, Jupiter aggregator integration, Governance token |
+| **Nov 2025 (Hackathon)** | ✅ Live | Solana escrow program (devnet), MCP server (Claude integration), TypeScript SDK, HTTP 402 middleware (Express), Switchboard On-Demand oracle, Quality-based sliding-scale refunds, Reputation tracking |
+| **Dec 2025 - Feb 2026** | Phase 1 | MCP ecosystem launch, LangChain/AutoGPT integrations, 10+ API provider onboarding, Security audit for mainnet, Multi-oracle consensus (3+ verifiers) |
+| **Mar - May 2026** | Phase 2 | Developer platform integrations (Replit, Zed), Framework middleware (FastAPI, Next.js), SPL token escrows (USDC/USDT), Enhanced ML quality scoring, Dispute resolution UI |
+| **Jun - Nov 2026** | Phase 3 | Enterprise white-label deployments, Cross-chain support (Base, Ethereum via Wormhole), Pyth price feeds, Governance token launch, SOC2/GDPR compliance packages |
+| **2027+** | Phase 4 | Protocol standardization (RFC submission), Multi-chain expansion, Chainlink CCIP integration, DAO governance, NFT-gated API access, Jupiter aggregator |
+
+**See full strategy:** [Market Analysis & GTM](docs/MARKET_STRATEGY.md)
 
 ## License
 
