@@ -234,7 +234,7 @@ const payment = await client.pay({
 });
 
 // Dispute triggers resolve_dispute instruction
-const dispute = await client.dispute({
+const dispute = await client.fileDispute({
   transactionId: payment.transactionId,
   reason: 'Incomplete data',
   originalQuery: 'Get all Uniswap exploits',

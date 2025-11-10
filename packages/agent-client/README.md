@@ -19,7 +19,7 @@ import { AutonomousServiceAgent } from '@x402resolve/agent-client';
 const agent = new AutonomousServiceAgent({
   keypair: agentKeypair,
   connection: new Connection('https://api.devnet.solana.com'),
-  programId: new PublicKey('AFmBBw...qsSR'),
+  programId: new PublicKey('E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n'),
   qualityThreshold: 85,
   maxPrice: 0.001,
   autoDispute: true

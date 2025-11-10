@@ -11,7 +11,7 @@ app.use(cors());
 
 const PORT = process.env.PORT || 3000;
 const ESCROW_PROGRAM_ID = new PublicKey(
-  process.env.ESCROW_PROGRAM_ID || 'D9adezZ12cosX3GG2jK6PpbwMFLHzcCYVpcPCFcaciYP'
+  process.env.ESCROW_PROGRAM_ID || 'E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n'
 );
 const connection = new Connection(
   process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com'

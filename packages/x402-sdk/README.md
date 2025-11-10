@@ -34,7 +34,9 @@ const accessToken = await client.pay({
 await client.fileDispute({
   transactionId: 'tx_123',
   reason: 'Low quality response',
-  qualityScore: 45
+  originalQuery: 'data request',
+  dataReceived: { incomplete: true },
+  expectedCriteria: ['complete_data', 'valid_format']
 });
 ```
 

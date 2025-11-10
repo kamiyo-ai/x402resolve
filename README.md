@@ -336,6 +336,7 @@ const wallet = Keypair.fromSecretKey(/* your key */);
 const client = new KamiyoClient({
   apiUrl: 'https://api.example.com',
   chain: 'solana',
+  rpcUrl: 'https://api.devnet.solana.com',
   walletPublicKey: wallet.publicKey
 });
 
@@ -355,7 +356,10 @@ const response = await fetch('https://api.example.com/data', {
 if (response.quality_score < 80) {
   await client.fileDispute({
     transactionId: payment.transactionId,
-    qualityScore: response.quality_score
+    reason: 'Quality below threshold',
+    originalQuery: 'data request',
+    dataReceived: response,
+    expectedCriteria: ['complete_data', 'valid_format']
   });
 }
 ```

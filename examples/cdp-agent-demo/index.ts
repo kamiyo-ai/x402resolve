@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const ESCROW_PROGRAM_ID = new PublicKey('D9adezZ12cosX3GG2jK6PpbwMFLHzcCYVpcPCFcaciYP');
+const ESCROW_PROGRAM_ID = new PublicKey('E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n');
 const connection = new Connection('https://api.devnet.solana.com');
 
 async function main() {
