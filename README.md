@@ -14,6 +14,16 @@ Trustless payment escrow for HTTP 402 APIs with oracle-verified quality assessme
 [![Docs](https://img.shields.io/badge/docs-API%20examples-success)](docs/API_EXAMPLES.md)
 [![MCP](https://img.shields.io/badge/MCP-8%20tools-purple?logo=anthropic)](packages/mcp-server/README.md)
 
+## Overview
+
+PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-scale refunds based on oracle quality assessment. No admin keys, no custody. Quality verified before payment release.
+
+**Program ID**: `E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n` (Devnet)
+
+**Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
+
+**Demo Video**: [https://x402resolve.kamiyo.ai/demo-video.mp4](https://x402resolve.kamiyo.ai/demo-video.mp4)
+
 ## Problem
 
 HTTP 402 APIs lack trustless quality assurance. Clients pay upfront with no recourse for poor data. Traditional chargebacks take 30-90 days and cost $35-50 per dispute. Providers face fraud risk and admin overhead.
@@ -29,14 +39,6 @@ The AI agents market reached **$7.6B in 2025** (41% YoY growth) while payment di
 **Go-to-Market:** Phase 1: MCP ecosystem (Claude, LangChain). Phase 2: Developer platforms (Replit, Zed). Phase 3: Enterprise (Fortune 500, Stripe, Visa). Phase 4: Protocol standardization (RFC, industry adoption). 6-12 month first-mover lead, network effects via reputation data.
 
 **Full strategy:** [Market Analysis & GTM](docs/MARKET_STRATEGY.md)
-
-## Overview
-
-PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-scale refunds based on oracle quality assessment. No admin keys, no custody. Quality verified before payment release.
-
-**Program ID**: `E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n` (Devnet)
-
-**Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
 
 ## Quick Integration
 
