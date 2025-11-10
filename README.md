@@ -32,7 +32,7 @@ HTTP 402 APIs lack trustless quality assurance. Clients pay upfront with no reco
 
 ## Market Opportunity
 
-The AI agents market reached **$7.6B in 2025** (41% YoY growth) while payment disputes hit **$41.69B**. As agents make autonomous purchases, traditional chargebacks (30-90 days, $35-50/dispute) break automation. Industry experts predict: *"AI agent transactions will trigger new payment disputes... It's going to be messy for the next five years."*
+The AI agents market reached **$7.6B in 2025** (41% YoY growth) while payment disputes hit **$41.69B**. As agents make autonomous purchases, traditional chargebacks (30-90 days, $35-50/dispute) break automation. Industry experts predict: *"AI agent transactions will trigger new payment disputes... New data from Worldpay projects $261 billion of online spending will be done by AI agents in the next 5 years."*
 
 **x402Resolve advantage:** 15-45x faster resolution, 5-25x cheaper, sliding-scale refunds vs binary (all-or-nothing).
 
