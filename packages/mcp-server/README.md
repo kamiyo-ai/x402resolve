@@ -37,11 +37,11 @@ pip install -r requirements.txt
 ## Overview
 
 Enable AI agents to:
-- ✅ **Pay for APIs** with escrow protection (no upfront risk)
-- ✅ **Verify quality** automatically via oracle assessment
-- ✅ **File disputes** for incomplete/inaccurate data
-- ✅ **Get refunds** based on quality scores (0-100% sliding scale)
-- ✅ **Check reputation** before calling untrusted APIs
+-  **Pay for APIs** with escrow protection (no upfront risk)
+-  **Verify quality** automatically via oracle assessment
+-  **File disputes** for incomplete/inaccurate data
+-  **Get refunds** based on quality scores (0-100% sliding scale)
+-  **Check reputation** before calling untrusted APIs
 
 **Why MCP?** AI agents need native payment capabilities. x402Resolve MCP server provides Claude (and other AI agents) with **autonomous transaction abilities**—pay for data, verify quality, dispute poor responses—all on-chain.
 
@@ -649,9 +649,9 @@ Email: security@kamiyo.ai
 ## Roadmap
 
 ### Q4 2024 (Current - Hackathon)
-- ✅ 8 core MCP tools
-- ✅ Solana devnet integration
-- ✅ Basic quality assessment
+-  8 core MCP tools
+-  Solana devnet integration
+-  Basic quality assessment
 - 🔄 Claude Desktop integration
 
 ### Q1 2025
@@ -729,4 +729,4 @@ MIT
 
 ---
 
-**Built for Solana x402 Hackathon 2025** 🚀
+**Built for Solana x402 Hackathon 2025** 
