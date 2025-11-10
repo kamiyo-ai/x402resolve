@@ -67,7 +67,7 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 
 ## MCP Server (AI Agent Integration)
 
-**The first MCP server for HTTP 402 payments** - enabling Claude and autonomous agents to autonomously create escrows, assess data quality, and file disputes on Solana.
+**MCP server for HTTP 402 payments with quality-verified refunds** - enabling Claude and autonomous agents to autonomously create escrows, assess data quality, and file disputes on Solana.
 
 ### What is MCP?
 
