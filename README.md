@@ -108,7 +108,7 @@ pip3 install -r requirements.txt
 ```
 User: "Create a 0.1 SOL escrow for the weather API"
 Claude: I'll use the create_escrow tool...
-✓ Escrow created: EscrowABC123...
+Escrow created: EscrowABC123...
   Amount: 0.1 SOL
   Quality guarantee: Enabled
 ```
@@ -229,33 +229,36 @@ initialize_escrow → Active → [release_funds | mark_disputed]
 
 **Escrow PDA**
 ```rust
-seeds = ["escrow", transaction_id.as_bytes()]
+seeds = [b"escrow", transaction_id.as_bytes()]
 
-agent: Pubkey (32 bytes)                    // Client/consumer
-api: Pubkey (32 bytes)                      // API provider
-amount: u64 (8 bytes)                       // Escrowed amount in lamports
-status: EscrowStatus (2 bytes)              // Active | Released | Disputed | Resolved
-created_at: i64 (8 bytes)                   // Unix timestamp
-expires_at: i64 (8 bytes)                   // Time-lock expiration
-transaction_id: String (4 + 64 bytes)       // Unique transaction identifier
-bump: u8 (1 byte)                           // PDA bump seed
-quality_score: Option<u8> (2 bytes)         // Oracle quality assessment (0-100)
-refund_percentage: Option<u8> (2 bytes)     // Refund percentage (0-100)
+agent: Pubkey                              // 32 bytes - Client/consumer
+api: Pubkey                                // 32 bytes - API provider
+amount: u64                                // 8 bytes  - Escrowed amount in lamports
+status: EscrowStatus                       // 2 bytes  - Active | Released | Disputed | Resolved
+created_at: i64                            // 8 bytes  - Unix timestamp
+expires_at: i64                            // 8 bytes  - Time-lock expiration
+transaction_id: String                     // 68 bytes - 4 (length) + 64 (max_len)
+bump: u8                                   // 1 byte   - PDA bump seed
+quality_score: Option<u8>                  // 2 bytes  - Oracle quality assessment (0-100)
+refund_percentage: Option<u8>              // 2 bytes  - Refund percentage (0-100)
 ```
 
-**Reputation PDA**
+**EntityReputation PDA**
 ```rust
-seeds = ["reputation", entity_pubkey.as_ref()]
+seeds = [b"reputation", entity.key().as_ref()]
 
-entity: Pubkey (32 bytes)                   // Agent or API provider
-total_transactions: u64 (8 bytes)
-disputes_filed: u64 (8 bytes)
-disputes_won: u64 (8 bytes)
-disputes_partial: u64 (8 bytes)
-disputes_lost: u64 (8 bytes)
-average_quality_received: u8 (1 byte)       // For agents
-reputation_score: u16 (2 bytes)             // Calculated score (0-1000)
-bump: u8 (1 byte)
+entity: Pubkey                             // 32 bytes - Agent or API provider
+entity_type: EntityType                    // 2 bytes  - Agent | Provider
+total_transactions: u64                    // 8 bytes  - Total completed transactions
+disputes_filed: u64                        // 8 bytes  - Total disputes initiated
+disputes_won: u64                          // 8 bytes  - Full refunds (quality <50)
+disputes_partial: u64                      // 8 bytes  - Partial refunds (quality 50-79)
+disputes_lost: u64                         // 8 bytes  - No refund (quality ≥80)
+average_quality_received: u8               // 1 byte   - Running average quality score
+reputation_score: u16                      // 2 bytes  - Calculated score (0-1000)
+created_at: i64                            // 8 bytes  - Account creation timestamp
+last_updated: i64                          // 8 bytes  - Last reputation update
+bump: u8                                   // 1 byte   - PDA bump seed
 ```
 
 ## Oracle Integration
@@ -432,7 +435,7 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 
 | Timeline | Status | Features |
 |----------|--------|----------|
-| **Nov 2025 (Hackathon)** | ✅ Live | Solana escrow program (devnet), MCP server (Claude integration), TypeScript SDK, HTTP 402 middleware (Express), Switchboard On-Demand oracle, Quality-based sliding-scale refunds, Reputation tracking |
+| **Nov 2025 (Hackathon)** | Live | Solana escrow program (devnet), MCP server (Claude integration), TypeScript SDK, HTTP 402 middleware (Express), Switchboard On-Demand oracle, Quality-based sliding-scale refunds, Reputation tracking |
 | **Dec 2025 - Feb 2026** | Phase 1 | MCP ecosystem launch, LangChain/AutoGPT integrations, 10+ API provider onboarding, Security audit for mainnet, Multi-oracle consensus (3+ verifiers) |
 | **Mar - May 2026** | Phase 2 | Developer platform integrations (Replit, Zed), Framework middleware (FastAPI, Next.js), SPL token escrows (USDC/USDT), Enhanced ML quality scoring, Dispute resolution UI |
 | **Jun - Nov 2026** | Phase 3 | Enterprise white-label deployments, Cross-chain support (Base, Ethereum via Wormhole), Pyth price feeds, Governance token launch, SOC2/GDPR compliance packages |
