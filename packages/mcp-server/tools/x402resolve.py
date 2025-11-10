@@ -21,6 +21,15 @@ from utils.solana_client import get_solana_client
 
 logger = logging.getLogger(__name__)
 
+# Validation constants
+MIN_AMOUNT_SOL = 0.001
+MAX_AMOUNT_SOL = 1000.0
+MIN_QUALITY_THRESHOLD = 0
+MAX_QUALITY_THRESHOLD = 100
+MIN_TIME_LOCK_HOURS = 1
+MAX_TIME_LOCK_HOURS = 720
+HTTP_TIMEOUT = 30.0
+
 
 async def create_escrow(
     api_provider: str,
@@ -55,14 +64,29 @@ async def create_escrow(
         )
 
         # Validate inputs
-        if not (0.001 <= amount_sol <= 1000):
-            raise ValueError("Amount must be between 0.001 and 1000 SOL")
+        if not isinstance(amount_sol, (int, float)) or amount_sol <= 0:
+            raise ValueError(f"Amount must be a positive number, got: {amount_sol}")
 
-        if not (0 <= quality_threshold <= 100):
-            raise ValueError("Quality threshold must be between 0 and 100")
+        if not (MIN_AMOUNT_SOL <= amount_sol <= MAX_AMOUNT_SOL):
+            raise ValueError(
+                f"Amount must be between {MIN_AMOUNT_SOL} and {MAX_AMOUNT_SOL} SOL, got: {amount_sol}"
+            )
 
-        if not (1 <= time_lock_hours <= 720):
-            raise ValueError("Time lock must be between 1 and 720 hours")
+        if not isinstance(quality_threshold, int):
+            raise ValueError(f"Quality threshold must be an integer, got: {type(quality_threshold).__name__}")
+
+        if not (MIN_QUALITY_THRESHOLD <= quality_threshold <= MAX_QUALITY_THRESHOLD):
+            raise ValueError(
+                f"Quality threshold must be between {MIN_QUALITY_THRESHOLD} and {MAX_QUALITY_THRESHOLD}, got: {quality_threshold}"
+            )
+
+        if not isinstance(time_lock_hours, int):
+            raise ValueError(f"Time lock must be an integer, got: {type(time_lock_hours).__name__}")
+
+        if not (MIN_TIME_LOCK_HOURS <= time_lock_hours <= MAX_TIME_LOCK_HOURS):
+            raise ValueError(
+                f"Time lock must be between {MIN_TIME_LOCK_HOURS} and {MAX_TIME_LOCK_HOURS} hours, got: {time_lock_hours}"
+            )
 
         # Create escrow on-chain
         solana_client = get_solana_client()
@@ -122,7 +146,7 @@ async def call_api_with_escrow(
         )
 
         # Step 2: Call API with payment proof
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             headers = {
                 "X-Payment-Proof": escrow["payment_proof"],
                 "Content-Type": "application/json"
@@ -264,11 +288,19 @@ async def file_dispute(
         )
 
         # Validate inputs
-        if not (0 <= quality_score <= 100):
-            raise ValueError("Quality score must be between 0 and 100")
+        if not isinstance(quality_score, int):
+            raise ValueError(f"Quality score must be an integer, got: {type(quality_score).__name__}")
+
+        if not (MIN_QUALITY_THRESHOLD <= quality_score <= MAX_QUALITY_THRESHOLD):
+            raise ValueError(
+                f"Quality score must be between {MIN_QUALITY_THRESHOLD} and {MAX_QUALITY_THRESHOLD}, got: {quality_score}"
+            )
+
+        if not isinstance(refund_percentage, int):
+            raise ValueError(f"Refund percentage must be an integer, got: {type(refund_percentage).__name__}")
 
         if not (0 <= refund_percentage <= 100):
-            raise ValueError("Refund percentage must be between 0 and 100")
+            raise ValueError(f"Refund percentage must be between 0 and 100, got: {refund_percentage}")
 
         # File dispute on-chain
         solana_client = get_solana_client()

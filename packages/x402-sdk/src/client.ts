@@ -69,6 +69,8 @@ export class KamiyoClient {
    * Pay for API access (with optional escrow for x402Resolve)
    */
   async pay(params: PaymentParams): Promise<AccessToken> {
+    this.validatePaymentParams(params);
+
     return this.retryHandler.execute(async () => {
       try {
         const enableEscrow = params.enableEscrow ?? this.enablex402Resolve;
@@ -77,7 +79,6 @@ export class KamiyoClient {
           return await this.payToEscrow(params);
         }
 
-        // Standard payment (no escrow)
         const response = await this.httpClient.post('/pay', {
           amount: params.amount,
           recipient: params.recipient,
@@ -98,6 +99,29 @@ export class KamiyoClient {
         );
       }
     }, 'Payment');
+  }
+
+  private validatePaymentParams(params: PaymentParams): void {
+    if (!params.amount || params.amount <= 0) {
+      throw new X402Error(
+        `Invalid amount: ${params.amount}. Must be greater than 0`,
+        'INVALID_AMOUNT'
+      );
+    }
+
+    if (params.amount < 0.001 || params.amount > 1000) {
+      throw new X402Error(
+        `Amount ${params.amount} SOL out of range. Must be between 0.001 and 1000 SOL`,
+        'AMOUNT_OUT_OF_RANGE'
+      );
+    }
+
+    if (!params.recipient || params.recipient.trim().length === 0) {
+      throw new X402Error(
+        'Recipient address is required',
+        'RECIPIENT_REQUIRED'
+      );
+    }
   }
 
   /**
@@ -144,7 +168,9 @@ export class KamiyoClient {
   /**
    * File a dispute for poor data quality
    */
-  async dispute(params: DisputeParams): Promise<DisputeResult> {
+  async fileDispute(params: DisputeParams): Promise<DisputeResult> {
+    this.validateDisputeParams(params);
+
     if (!this.enablex402Resolve) {
       throw new X402Error(
         'x402Resolve not enabled. Set enablex402Resolve: true in config',
@@ -290,5 +316,42 @@ export class KamiyoClient {
    */
   clearAccessToken(): void {
     delete this.httpClient.defaults.headers.common['Authorization'];
+  }
+
+  private validateDisputeParams(params: DisputeParams): void {
+    if (!params.transactionId || params.transactionId.trim().length === 0) {
+      throw new X402Error(
+        'Transaction ID is required',
+        'TRANSACTION_ID_REQUIRED'
+      );
+    }
+
+    if (!params.reason || params.reason.trim().length === 0) {
+      throw new X402Error(
+        'Dispute reason is required',
+        'REASON_REQUIRED'
+      );
+    }
+
+    if (!params.originalQuery || params.originalQuery.trim().length === 0) {
+      throw new X402Error(
+        'Original query is required for dispute evidence',
+        'ORIGINAL_QUERY_REQUIRED'
+      );
+    }
+
+    if (!params.dataReceived) {
+      throw new X402Error(
+        'Data received is required for dispute evidence',
+        'DATA_RECEIVED_REQUIRED'
+      );
+    }
+
+    if (!Array.isArray(params.expectedCriteria) || params.expectedCriteria.length === 0) {
+      throw new X402Error(
+        'Expected criteria must be a non-empty array',
+        'EXPECTED_CRITERIA_REQUIRED'
+      );
+    }
   }
 }

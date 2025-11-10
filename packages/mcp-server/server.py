@@ -265,57 +265,68 @@ async def list_tools() -> list[Tool]:
     ]
 
 
+TOOL_DISPATCH = {
+    "create_escrow": create_escrow,
+    "call_api_with_escrow": call_api_with_escrow,
+    "assess_data_quality": assess_data_quality,
+    "file_dispute": file_dispute,
+    "check_escrow_status": check_escrow_status,
+    "get_api_reputation": get_api_reputation,
+    "verify_payment": verify_payment,
+    "estimate_refund": estimate_refund,
+}
+
+
 @server.call_tool()
 async def call_tool(name: str, arguments: Dict[str, Any]) -> list[TextContent]:
     """Handle tool calls from MCP clients"""
-    global server_start_time
+    import json
 
-    logger.info(f"Tool called: {name} with args: {arguments}")
+    logger.info(f"Tool called: {name}")
+
+    tool_handler = TOOL_DISPATCH.get(name)
+    if not tool_handler:
+        error_result = {
+            "error": "UnknownTool",
+            "message": f"Tool '{name}' not found",
+            "available_tools": list(TOOL_DISPATCH.keys())
+        }
+        return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
 
     try:
-        # Route to appropriate tool handler
-        if name == "create_escrow":
-            result = await create_escrow(**arguments)
-
-        elif name == "call_api_with_escrow":
-            result = await call_api_with_escrow(**arguments)
-
-        elif name == "assess_data_quality":
-            result = await assess_data_quality(**arguments)
-
-        elif name == "file_dispute":
-            result = await file_dispute(**arguments)
-
-        elif name == "check_escrow_status":
-            result = await check_escrow_status(**arguments)
-
-        elif name == "get_api_reputation":
-            result = await get_api_reputation(**arguments)
-
-        elif name == "verify_payment":
-            result = await verify_payment(**arguments)
-
-        elif name == "estimate_refund":
-            result = estimate_refund(**arguments)
-
+        if asyncio.iscoroutinefunction(tool_handler):
+            result = await tool_handler(**arguments)
         else:
-            raise ValueError(f"Unknown tool: {name}")
+            result = tool_handler(**arguments)
 
-        # Format result as JSON
-        import json
-        result_text = json.dumps(result, indent=2)
+        logger.info(f"Tool {name} completed: quality_score={result.get('quality_score', 'N/A')}")
+        return [TextContent(type="text", text=json.dumps(result, indent=2))]
 
-        logger.info(f"Tool {name} completed successfully")
-        return [TextContent(type="text", text=result_text)]
+    except TypeError as e:
+        logger.error(f"Invalid arguments for {name}: {e}")
+        error_result = {
+            "error": "InvalidArguments",
+            "message": f"Invalid arguments: {str(e)}",
+            "tool": name
+        }
+        return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+
+    except ValueError as e:
+        logger.error(f"Validation error in {name}: {e}")
+        error_result = {
+            "error": "ValidationError",
+            "message": str(e),
+            "tool": name
+        }
+        return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
 
     except Exception as e:
         logger.error(f"Error in tool {name}: {e}", exc_info=True)
         error_result = {
-            "error": str(type(e).__name__),
+            "error": type(e).__name__,
             "message": str(e),
             "tool": name
         }
-        import json
         return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
 
 

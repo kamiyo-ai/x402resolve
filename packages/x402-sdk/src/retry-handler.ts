@@ -37,22 +37,46 @@ export class Tsudzuki {
 
   /**
    * Check if error is retryable
+   * Returns true for transient network/RPC errors, false for permanent failures
    */
   private isRetryableError(error: Error): boolean {
     const errorMessage = error.message.toLowerCase();
+    const errorString = error.toString().toLowerCase();
 
-    return this.config.retryableErrors.some((retryableError) =>
-      errorMessage.includes(retryableError.toLowerCase())
-    );
+    // Check if any retryable error pattern matches
+    const isRetryable = this.config.retryableErrors.some((pattern) => {
+      const lowerPattern = pattern.toLowerCase();
+      return errorMessage.includes(lowerPattern) || errorString.includes(lowerPattern);
+    });
+
+    // Never retry permanent errors even if message matches pattern
+    const isPermanent =
+      errorMessage.includes('unauthorized') ||
+      errorMessage.includes('forbidden') ||
+      errorMessage.includes('not found') ||
+      errorMessage.includes('invalid signature') ||
+      errorMessage.includes('insufficient funds') ||
+      errorMessage.includes('account not found') ||
+      errorString.includes('401') ||
+      errorString.includes('403');
+
+    return isRetryable && !isPermanent;
   }
 
   /**
-   * Calculate delay for retry attempt
+   * Calculate delay for retry attempt with exponential backoff and jitter
+   * Jitter prevents thundering herd when multiple clients retry simultaneously
    */
   private calculateDelay(attempt: number): number {
-    const delay =
+    const baseDelay =
       this.config.initialDelay * Math.pow(this.config.backoffMultiplier, attempt);
-    return Math.min(delay, this.config.maxDelay);
+
+    const cappedDelay = Math.min(baseDelay, this.config.maxDelay);
+
+    // Add jitter: random value between 0% and 25% of the delay
+    const jitter = cappedDelay * 0.25 * Math.random();
+
+    return Math.floor(cappedDelay + jitter);
   }
 
   /**

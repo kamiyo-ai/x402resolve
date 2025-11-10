@@ -286,23 +286,37 @@ class QualityAssessment:
 
         return max(score, 0), issues
 
-    def _extract_timestamp(self, data: Any) -> Optional[Any]:
-        """Extract timestamp from data"""
-        timestamp_fields = [
-            "timestamp", "created_at", "updated_at", "date", "time",
-            "createdAt", "updatedAt", "datetime", "last_updated"
-        ]
+    def _extract_timestamp(self, data: Any, depth: int = 0) -> Optional[Any]:
+        """
+        Extract timestamp from data with depth limit to prevent infinite recursion
+        Checks common timestamp field patterns in order of likelihood
+        """
+        if depth > 3:
+            return None
+
+        TIMESTAMP_PATTERNS = (
+            "timestamp", "created_at", "updated_at", "createdAt", "updatedAt",
+            "date", "datetime", "time", "last_updated", "lastUpdated",
+            "modified_at", "modifiedAt", "published_at", "publishedAt"
+        )
 
         if isinstance(data, dict):
-            for field in timestamp_fields:
-                if field in data:
+            # Fast path: check common fields first
+            for field in TIMESTAMP_PATTERNS:
+                if field in data and data[field] is not None:
                     return data[field]
-            # Check nested data
-            if "data" in data and isinstance(data["data"], list) and len(data["data"]) > 0:
-                return self._extract_timestamp(data["data"][0])
 
-        elif isinstance(data, list) and len(data) > 0:
-            return self._extract_timestamp(data[0])
+            # Check nested structures
+            for nested_key in ("data", "result", "results", "records", "items"):
+                if nested_key in data:
+                    nested = data[nested_key]
+                    if isinstance(nested, list) and nested:
+                        return self._extract_timestamp(nested[0], depth + 1)
+                    elif isinstance(nested, dict):
+                        return self._extract_timestamp(nested, depth + 1)
+
+        elif isinstance(data, list) and data:
+            return self._extract_timestamp(data[0], depth + 1)
 
         return None
 
@@ -316,21 +330,27 @@ class QualityAssessment:
 
     def _calculate_refund(self, quality_score: float) -> int:
         """
-        Calculate refund percentage based on quality score
+        Calculate refund percentage based on quality score using sigmoid curve
 
         Refund logic:
-        - Quality >= 80: 0% refund (good delivery)
-        - Quality 50-79: Sliding scale (partial refund)
-        - Quality < 50: 100% refund (failed delivery)
+        - Quality >= 80: 0% refund (acceptable delivery)
+        - Quality 50-79: Sliding scale (partial refund with smooth transition)
+        - Quality < 50: 100% refund (unacceptable delivery)
+
+        Uses sigmoid-like curve for smoother transitions at boundaries
         """
-        if quality_score >= 80:
+        score = max(0, min(100, quality_score))
+
+        if score >= 80:
             return 0
-        elif quality_score >= 50:
-            # Sliding scale: 0% at 80, 100% at 50
-            return int((80 - quality_score) / 30 * 100)
-        else:
-            # Full refund for quality < 50
+        elif score < 50:
             return 100
+        else:
+            # Smooth curve: refund increases exponentially as quality drops
+            # Maps 50-79 range to 100-0 refund with steeper curve near boundaries
+            normalized = (80 - score) / 30
+            refund = int(normalized * normalized * 100)
+            return min(100, refund)
 
 
 # Singleton instance

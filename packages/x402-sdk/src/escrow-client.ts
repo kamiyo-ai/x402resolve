@@ -74,6 +74,8 @@ export class EscrowClient {
    * Create a new escrow
    */
   async createEscrow(params: CreateEscrowParams): Promise<string> {
+    this.validateCreateEscrowParams(params);
+
     const [escrowPda] = this.deriveEscrowAddress(params.transactionId);
 
     const tx: string = await (this.program.methods as any)
@@ -89,12 +91,38 @@ export class EscrowClient {
     return tx;
   }
 
+  private validateCreateEscrowParams(params: CreateEscrowParams): void {
+    if (!params.transactionId || params.transactionId.trim().length === 0) {
+      throw new Error('Transaction ID is required');
+    }
+
+    if (!params.apiPublicKey) {
+      throw new Error('API public key is required');
+    }
+
+    if (!params.amount || params.amount.isNeg() || params.amount.isZero()) {
+      throw new Error('Amount must be a positive number');
+    }
+
+    if (!params.timeLock || params.timeLock.isNeg() || params.timeLock.isZero()) {
+      throw new Error('Time lock must be a positive number');
+    }
+  }
+
   /**
    * Release funds to API (happy path)
    */
   async releaseFunds(transactionId: string): Promise<string> {
+    if (!transactionId || transactionId.trim().length === 0) {
+      throw new Error('Transaction ID is required');
+    }
+
     const [escrowPda] = this.deriveEscrowAddress(transactionId);
     const escrow = await this.getEscrow(transactionId);
+
+    if (!escrow) {
+      throw new Error(`Escrow not found for transaction: ${transactionId}`);
+    }
 
     const tx: string = await (this.program.methods as any)
       .releaseFunds()
@@ -113,6 +141,10 @@ export class EscrowClient {
    * Mark escrow as disputed
    */
   async markDisputed(transactionId: string): Promise<string> {
+    if (!transactionId || transactionId.trim().length === 0) {
+      throw new Error('Transaction ID is required');
+    }
+
     const [escrowPda] = this.deriveEscrowAddress(transactionId);
 
     const tx: string = await (this.program.methods as any)
