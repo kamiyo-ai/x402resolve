@@ -130,8 +130,6 @@ Escrow created: EscrowABC123...
 
 **Full Documentation:** [packages/mcp-server/README.md](packages/mcp-server/README.md)
 
-**Hackathon Submission:** [packages/mcp-server/HACKATHON_SUBMISSION.md](packages/mcp-server/HACKATHON_SUBMISSION.md)
-
 ## Why Solana?
 
 **High TPS** → Real-time refunds (2-48 hours vs 30-90 days). No waiting for traditional payment processors.
