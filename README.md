@@ -87,32 +87,38 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 1. **Install dependencies:**
 ```bash
 cd packages/mcp-server
-pip3 install -r requirements.txt
+npm install
+npm run build
 ```
 
-2. **Configure Claude Desktop:**
+2. **Configure environment:**
+```bash
+cp .env.example .env
+# Edit .env with your keypair
+```
+
+3. **Configure Claude Desktop:**
 ```json
 {
   "mcpServers": {
     "x402resolve": {
-      "command": "python3",
-      "args": ["/absolute/path/to/packages/mcp-server/server.py"],
+      "command": "node",
+      "args": ["/absolute/path/to/packages/mcp-server/dist/index.js"],
       "env": {
         "SOLANA_RPC_URL": "https://api.devnet.solana.com",
-        "X402_PROGRAM_ID": "E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n"
+        "X402_PROGRAM_ID": "E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n",
+        "AGENT_PRIVATE_KEY": "<your_base58_private_key>"
       }
     }
   }
 }
 ```
 
-3. **Use in Claude:**
+4. **Use in Claude:**
 ```
-User: "Create a 0.1 SOL escrow for the weather API"
-Claude: I'll use the create_escrow tool...
-Escrow created: EscrowABC123...
-  Amount: 0.1 SOL
-  Quality guarantee: Enabled
+User: "Create a 0.001 SOL escrow for weather API at 9W..."
+Claude: Creating escrow...
+Escrow: E7x... (0.001 SOL, expires in 1h)
 ```
 
 ### Available Tools
