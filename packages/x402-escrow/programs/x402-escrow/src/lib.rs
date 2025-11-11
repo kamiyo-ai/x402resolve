@@ -133,10 +133,12 @@ pub fn verify_ed25519_signature(
     signature: &[u8; 64],
     verifier_pubkey: &Pubkey,
     message: &[u8],
+    instruction_index: u16,
 ) -> Result<()> {
-        // Load the Ed25519 instruction from the sysvar
-        // Expected to be at index 0 (before the current instruction)
-        let ix = load_instruction_at_checked(0, instructions_sysvar)
+        // Load the Ed25519 instruction from the sysvar at the specified index
+        // For multi-oracle, Ed25519 instructions are at indices 0, 1, 2, 3, 4
+        // and the resolve instruction comes after them
+        let ix = load_instruction_at_checked(instruction_index as usize, instructions_sysvar)
             .map_err(|_| error!(EscrowError::InvalidSignature))?;
 
         // Verify it's the Ed25519 program
@@ -503,11 +505,13 @@ pub mod x402_escrow {
         let message_bytes = message.as_bytes();
 
         // Verify Ed25519 signature from the instructions sysvar
+        // Single-oracle version: Ed25519 instruction is at index 0
         verify_ed25519_signature(
             &ctx.accounts.instructions_sysvar,
             &signature,
             ctx.accounts.verifier.key,
             message_bytes,
+            0, // Ed25519 instruction at index 0
         )?;
 
         msg!("Verifier: {}", ctx.accounts.verifier.key());
@@ -1066,7 +1070,9 @@ pub mod x402_escrow {
         let clock = Clock::get()?;
 
         // Step 2: Verify each oracle submission
-        for submission in submissions.iter() {
+        // Ed25519 instructions are expected at indices 0, 1, 2, etc.
+        // The resolve_dispute_multi_oracle instruction comes after all Ed25519 instructions
+        for (index, submission) in submissions.iter().enumerate() {
             // Check oracle is registered
             let oracle_config = registry.oracles.iter()
                 .find(|o| o.pubkey == submission.oracle)
@@ -1091,14 +1097,16 @@ pub mod x402_escrow {
             match oracle_config.oracle_type {
                 OracleType::Ed25519 => {
                     // Verify Ed25519 signature from instructions sysvar
+                    // Each Ed25519 instruction is at index matching the submission index
                     let message = format!("{}:{}", escrow.transaction_id, submission.quality_score);
                     verify_ed25519_signature(
                         &ctx.accounts.instructions_sysvar,
                         &submission.signature,
                         &submission.oracle,
                         message.as_bytes(),
+                        index as u16, // Ed25519 instruction index matches submission index
                     )?;
-                    msg!("Ed25519 oracle verified: {}", submission.oracle);
+                    msg!("Ed25519 oracle verified at index {}: {}", index, submission.oracle);
                 }
                 OracleType::Switchboard => {
                     // Switchboard verification requires additional accounts (switchboard_function)
