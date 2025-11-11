@@ -22,7 +22,7 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 **Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
 
-**Demo Video**: [[https://x402resolve.kamiyo.ai/demo-video.mp4](https://x402resolve.kamiyo.ai/demo.html)]([https://x402resolve.kamiyo.ai/demo-video.mp4](https://x402resolve.kamiyo.ai/demo.html))
+**Demo Video**: [https://x402resolve.kamiyo.ai/demo-video.mp4/](https://x402resolve.kamiyo.ai/demo.html/)
 
 ## Problem
 
