@@ -1041,6 +1041,258 @@ pub mod x402_escrow {
         Ok(())
     }
 
+    /// Initialize oracle votes storage for sequential submission
+    pub fn initialize_oracle_votes(
+        ctx: Context<InitializeOracleVotes>,
+        transaction_id: String,
+    ) -> Result<()> {
+        let votes = &mut ctx.accounts.oracle_votes;
+        let clock = Clock::get()?;
+
+        votes.transaction_id = transaction_id;
+        votes.escrow = ctx.accounts.escrow.key();
+        votes.votes = Vec::new();
+        votes.vote_count = 0;
+        votes.created_at = clock.unix_timestamp;
+        votes.bump = ctx.bumps.oracle_votes;
+
+        msg!("Oracle votes storage initialized for transaction: {}", votes.transaction_id);
+
+        Ok(())
+    }
+
+    /// Submit a single oracle vote (for sequential submission)
+    /// This allows splitting multi-oracle consensus into multiple small transactions
+    pub fn submit_oracle_vote(
+        ctx: Context<SubmitOracleVote>,
+        oracle_pubkey: Pubkey,
+        quality_score: u8,
+        signature: [u8; 64],
+    ) -> Result<()> {
+        let votes = &mut ctx.accounts.oracle_votes;
+        let oracle_registry = &ctx.accounts.oracle_registry;
+        let clock = Clock::get()?;
+
+        // Verify oracle is registered
+        let oracle_config = oracle_registry.oracles.iter()
+            .find(|o| o.pubkey == oracle_pubkey)
+            .ok_or(EscrowError::UnregisteredOracle)?;
+
+        // Only support Ed25519 oracles for this method
+        require!(
+            oracle_config.oracle_type == OracleType::Ed25519,
+            EscrowError::UnsupportedOracleType
+        );
+
+        // Verify quality score range
+        require!(
+            quality_score <= 100,
+            EscrowError::InvalidQualityScore
+        );
+
+        // Check for duplicate oracle submission
+        require!(
+            !votes.votes.iter().any(|v| v.oracle == oracle_pubkey),
+            EscrowError::DuplicateOracleSubmission
+        );
+
+        // Verify Ed25519 signature from instructions sysvar
+        // Ed25519 instruction must be at index 0 for single-vote submissions
+        let message = format!("{}:{}", votes.transaction_id, quality_score);
+        verify_ed25519_signature(
+            &ctx.accounts.instructions_sysvar,
+            &signature,
+            &oracle_pubkey,
+            message.as_bytes(),
+            0, // Ed25519 instruction at index 0
+        )?;
+
+        // Add vote to storage
+        votes.votes.push(OracleVote {
+            oracle: oracle_pubkey,
+            quality_score,
+            signature,
+        });
+        votes.vote_count = votes.vote_count.saturating_add(1);
+
+        msg!(
+            "Oracle vote submitted: {} score={} (total votes: {})",
+            oracle_pubkey,
+            quality_score,
+            votes.vote_count
+        );
+
+        Ok(())
+    }
+
+    /// Resolve dispute with sequential oracle votes (reads from OracleVotes account)
+    /// This instruction consumes the votes submitted via submit_oracle_vote
+    pub fn resolve_dispute_sequential(
+        ctx: Context<ResolveDisputeSequential>,
+    ) -> Result<()> {
+        let escrow = &mut ctx.accounts.escrow;
+        let registry = &ctx.accounts.oracle_registry;
+        let votes = &ctx.accounts.oracle_votes;
+
+        require!(
+            escrow.status == EscrowStatus::Active || escrow.status == EscrowStatus::Disputed,
+            EscrowError::InvalidStatus
+        );
+
+        // Validate minimum consensus requirement
+        require!(
+            votes.vote_count >= registry.min_consensus,
+            EscrowError::InsufficientOracleConsensus
+        );
+
+        require!(
+            votes.vote_count as usize <= MAX_ORACLES,
+            EscrowError::MaxOraclesReached
+        );
+
+        // NOTE: Ed25519 signatures were already verified when votes were submitted
+        // We only need to calculate consensus from the stored votes
+
+        // Extract scores for consensus calculation
+        let scores: Vec<u8> = votes.votes.iter().map(|v| v.quality_score).collect();
+
+        // Calculate consensus score using median with deviation detection
+        let consensus_score = calculate_consensus_score(&scores, registry.max_score_deviation)?;
+
+        // Calculate refund percentage based on consensus quality score
+        let refund_percentage = calculate_refund_from_quality(consensus_score);
+
+        // Update escrow state
+        escrow.status = EscrowStatus::Resolved;
+        escrow.quality_score = Some(consensus_score);
+        escrow.refund_percentage = Some(refund_percentage);
+
+        // Store oracle submissions for record
+        escrow.oracle_submissions = votes.votes.iter().map(|v| OracleSubmission {
+            oracle: v.oracle,
+            quality_score: v.quality_score,
+            submitted_at: votes.created_at,
+        }).collect();
+
+        // Execute transfers (extract data first to drop mutable borrow)
+        let (refund_amount, payment_amount, transaction_id_bytes, escrow_bump, token_mint) = {
+            let refund_amount = (escrow.amount as u128)
+                .checked_mul(refund_percentage as u128)
+                .ok_or(EscrowError::ArithmeticOverflow)?
+                .checked_div(100)
+                .ok_or(EscrowError::ArithmeticOverflow)? as u64;
+
+            let payment_amount = escrow.amount
+                .checked_sub(refund_amount)
+                .ok_or(EscrowError::ArithmeticOverflow)?;
+
+            let transaction_id_bytes = escrow.transaction_id.as_bytes().to_vec();
+            let escrow_bump = escrow.bump;
+            let token_mint = escrow.token_mint;
+
+            (refund_amount, payment_amount, transaction_id_bytes, escrow_bump, token_mint)
+        };
+
+        // Prepare PDA seeds for signing transfers
+        let seeds = &[
+            b"escrow".as_ref(),
+            transaction_id_bytes.as_slice(),
+            &[escrow_bump],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        // Transfer refund to agent
+        if refund_amount > 0 {
+            if token_mint.is_some() {
+                // SPL Token transfer
+                let escrow_token = ctx.accounts.escrow_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let agent_token = ctx.accounts.agent_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let token_prog = ctx.accounts.token_program.as_ref()
+                    .ok_or(EscrowError::MissingTokenProgram)?;
+
+                let cpi_accounts = SplTransfer {
+                    from: escrow_token.to_account_info(),
+                    to: agent_token.to_account_info(),
+                    authority: ctx.accounts.escrow.to_account_info(),
+                };
+                let cpi_ctx = CpiContext::new_with_signer(
+                    token_prog.to_account_info(),
+                    cpi_accounts,
+                    signer_seeds,
+                );
+                token::transfer(cpi_ctx, refund_amount)?;
+            } else {
+                // Native SOL transfer
+                let escrow_account_info = ctx.accounts.escrow.to_account_info();
+                let agent_account_info = ctx.accounts.agent.to_account_info();
+                **escrow_account_info.try_borrow_mut_lamports()? -= refund_amount;
+                **agent_account_info.try_borrow_mut_lamports()? += refund_amount;
+            }
+        }
+
+        // Transfer payment to API provider
+        if payment_amount > 0 {
+            if token_mint.is_some() {
+                // SPL Token transfer
+                let escrow_token = ctx.accounts.escrow_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let api_token = ctx.accounts.api_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let token_prog = ctx.accounts.token_program.as_ref()
+                    .ok_or(EscrowError::MissingTokenProgram)?;
+
+                let cpi_accounts = SplTransfer {
+                    from: escrow_token.to_account_info(),
+                    to: api_token.to_account_info(),
+                    authority: ctx.accounts.escrow.to_account_info(),
+                };
+                let cpi_ctx = CpiContext::new_with_signer(
+                    token_prog.to_account_info(),
+                    cpi_accounts,
+                    signer_seeds,
+                );
+                token::transfer(cpi_ctx, payment_amount)?;
+            } else {
+                // Native SOL transfer
+                let escrow_account_info = ctx.accounts.escrow.to_account_info();
+                let api_account_info = ctx.accounts.api.to_account_info();
+                **escrow_account_info.try_borrow_mut_lamports()? -= payment_amount;
+                **api_account_info.try_borrow_mut_lamports()? += payment_amount;
+            }
+        }
+
+        // Update reputation scores
+        update_agent_reputation(
+            &mut ctx.accounts.agent_reputation,
+            consensus_score,
+            refund_percentage,
+        )?;
+
+        update_api_reputation(
+            &mut ctx.accounts.api_reputation,
+            refund_percentage,
+        )?;
+
+        emit!(MultiOracleDisputeResolved {
+            escrow: ctx.accounts.escrow.key(),
+            transaction_id: String::from_utf8_lossy(&transaction_id_bytes).to_string(),
+            oracle_count: votes.vote_count,
+            individual_scores: votes.votes.iter().map(|v| v.quality_score).collect(),
+            oracles: votes.votes.iter().map(|v| v.oracle).collect(),
+            consensus_score,
+            refund_percentage,
+            refund_amount,
+            payment_amount,
+        });
+
+        msg!("Dispute resolved (sequential): score={} refund={}% oracles={}",
+            consensus_score, refund_percentage, votes.vote_count);
+
+        Ok(())
+    }
+
     /// Resolve dispute with multi-oracle consensus
     pub fn resolve_dispute_multi_oracle(
         ctx: Context<ResolveDisputeMultiOracle>,
@@ -1719,6 +1971,117 @@ pub struct ManageOracle<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(transaction_id: String)]
+pub struct InitializeOracleVotes<'info> {
+    #[account(
+        init,
+        payer = payer,
+        space = 8 + OracleVotes::INIT_SPACE,
+        seeds = [b"oracle_votes", transaction_id.as_bytes()],
+        bump
+    )]
+    pub oracle_votes: Account<'info, OracleVotes>,
+
+    #[account(
+        seeds = [b"escrow", transaction_id.as_bytes()],
+        bump = escrow.bump
+    )]
+    pub escrow: Account<'info, Escrow>,
+
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(oracle_pubkey: Pubkey, quality_score: u8, signature: [u8; 64])]
+pub struct SubmitOracleVote<'info> {
+    #[account(
+        mut,
+        seeds = [b"oracle_votes", oracle_votes.transaction_id.as_bytes()],
+        bump = oracle_votes.bump
+    )]
+    pub oracle_votes: Account<'info, OracleVotes>,
+
+    #[account(
+        seeds = [b"oracle_registry"],
+        bump = oracle_registry.bump
+    )]
+    pub oracle_registry: Account<'info, OracleRegistry>,
+
+    /// CHECK: Instructions sysvar for Ed25519 verification
+    #[account(address = INSTRUCTIONS_ID)]
+    pub instructions_sysvar: AccountInfo<'info>,
+
+    pub signer: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct ResolveDisputeSequential<'info> {
+    #[account(
+        mut,
+        seeds = [b"escrow", escrow.transaction_id.as_bytes()],
+        bump = escrow.bump
+    )]
+    pub escrow: Account<'info, Escrow>,
+
+    #[account(
+        mut,
+        seeds = [b"oracle_votes", oracle_votes.transaction_id.as_bytes()],
+        bump = oracle_votes.bump,
+        close = payer
+    )]
+    pub oracle_votes: Account<'info, OracleVotes>,
+
+    #[account(
+        seeds = [b"oracle_registry"],
+        bump = oracle_registry.bump
+    )]
+    pub oracle_registry: Account<'info, OracleRegistry>,
+
+    /// CHECK: Agent receiving refund
+    #[account(mut)]
+    pub agent: AccountInfo<'info>,
+
+    /// CHECK: API receiving payment
+    #[account(mut)]
+    pub api: AccountInfo<'info>,
+
+    #[account(
+        mut,
+        seeds = [b"reputation", agent.key().as_ref()],
+        bump = agent_reputation.bump
+    )]
+    pub agent_reputation: Account<'info, EntityReputation>,
+
+    #[account(
+        mut,
+        seeds = [b"reputation", api.key().as_ref()],
+        bump = api_reputation.bump
+    )]
+    pub api_reputation: Account<'info, EntityReputation>,
+
+    pub system_program: Program<'info, System>,
+
+    // Optional token accounts for SPL transfers
+    #[account(mut)]
+    pub escrow_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub agent_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub api_token_account: Option<Account<'info, TokenAccount>>,
+
+    pub token_program: Option<Program<'info, Token>>,
+
+    /// Payer to receive rent refund when closing oracle_votes account
+    #[account(mut)]
+    pub payer: Signer<'info>,
+}
+
+#[derive(Accounts)]
 pub struct ResolveDisputeMultiOracle<'info> {
     #[account(
         mut,
@@ -1822,6 +2185,29 @@ pub struct OracleSubmissionInput {
     pub oracle: Pubkey,
     pub quality_score: u8,
     pub signature: [u8; 64],
+}
+
+/// Temporary storage for oracle votes (for sequential submission)
+/// This account holds oracle submissions until final consensus is calculated
+#[account]
+#[derive(InitSpace)]
+pub struct OracleVotes {
+    #[max_len(64)]
+    pub transaction_id: String,           // 4 + 64 bytes
+    pub escrow: Pubkey,                   // 32 bytes
+    #[max_len(5)]
+    pub votes: Vec<OracleVote>,           // 4 + 5*(32+1+64) = 489 bytes
+    pub vote_count: u8,                   // 1 byte
+    pub created_at: i64,                  // 8 bytes
+    pub bump: u8,                         // 1 byte
+}
+
+/// Individual oracle vote with signature
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
+pub struct OracleVote {
+    pub oracle: Pubkey,                   // 32 bytes
+    pub quality_score: u8,                // 1 byte
+    pub signature: [u8; 64],              // 64 bytes
 }
 
 #[account]
