@@ -22,7 +22,7 @@ PDA-based escrow implementing RFC 9110 Section 15.5.3 (HTTP 402) with sliding-sc
 
 **Live Demo**: [https://x402resolve.kamiyo.ai/](https://x402resolve.kamiyo.ai/)
 
-**Demo Video**: [https://x402resolve.kamiyo.ai/demo-video.mp4](https://x402resolve.kamiyo.ai/demo-video.mp4)
+**Demo Video**: [https://x402resolve.kamiyo.ai/demo-video.mp4/](https://x402resolve.kamiyo.ai/demo.html/)
 
 ## Problem
 
@@ -499,8 +499,8 @@ Full examples: [API_EXAMPLES.md](docs/API_EXAMPLES.md)
 | Timeline | Status | Features |
 |----------|--------|----------|
 | **Nov 2025 (Hackathon)** | Live | Solana escrow program (devnet), MCP server (Claude integration), TypeScript SDK, HTTP 402 middleware (Express), Switchboard On-Demand oracle, Quality-based sliding-scale refunds, Reputation tracking |
-| **Dec 2025 - Feb 2026** | Phase 1 | MCP ecosystem launch, LangChain/AutoGPT integrations, 10+ API provider onboarding, Security audit for mainnet, Multi-oracle consensus (3+ verifiers) |
-| **Mar - May 2026** | Phase 2 | Developer platform integrations (Replit, Zed), Framework middleware (FastAPI, Next.js), SPL token escrows (USDC/USDT), Enhanced ML quality scoring, Dispute resolution UI |
+| **Dec 2025 - Feb 2026** | Phase 1 | Mainnet MCP ecosystem launch, LangChain/AutoGPT integrations, 10+ API provider onboarding, Security audit for mainnet, Multi-oracle consensus (3+ verifiers), Mainnet dispute resolution UI |
+| **Mar - May 2026** | Phase 2 | Developer platform integrations (Replit, Zed), Framework middleware (FastAPI, Next.js), SPL token escrows (USDC/USDT), Enhanced ML quality scoring |
 | **Jun - Nov 2026** | Phase 3 | Enterprise white-label deployments, Cross-chain support (Base, Ethereum via Wormhole), Pyth price feeds, Governance token launch, SOC2/GDPR compliance packages |
 | **2027+** | Phase 4 | Protocol standardization (RFC submission), Multi-chain expansion, Chainlink CCIP integration, DAO governance, NFT-gated API access, Jupiter aggregator |
 
