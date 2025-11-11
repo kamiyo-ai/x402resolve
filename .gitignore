@@ -25,6 +25,9 @@ pip-log.txt
 pip-delete-this-directory.txt
 .pytest_cache/
 
+# JSON
+kamiyo_program_keypair.json
+
 # Rust/Anchor
 target/
 **/*.rs.bk

@@ -10,7 +10,7 @@ use anchor_lang::solana_program::{
 };
 use switchboard_on_demand::on_demand::accounts::pull_feed::PullFeedAccountData;
 
-declare_id!("E5EiaJhbg6Bav1v3P211LNv1tAqa4fHVeuGgRBHsEu6n");
+declare_id!("4x8i1j1Xy9wTPCLELtXuBt6nMwCmfzF9BK47BG8MWWf7");
 
 // Validation constants
 const MIN_TIME_LOCK: i64 = 3600;                    // 1 hour
@@ -989,14 +989,18 @@ pub mod x402_escrow {
             .checked_sub(refund_amount)
             .ok_or(EscrowError::ArithmeticOverflow)?;
 
+        let escrow_account_info = escrow.to_account_info();
+        let agent_account_info = ctx.accounts.agent.to_account_info();
+        let api_account_info = ctx.accounts.api.to_account_info();
+
         if refund_amount > 0 {
-            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= refund_amount;
-            **ctx.accounts.agent.to_account_info().try_borrow_mut_lamports()? += refund_amount;
+            **escrow_account_info.try_borrow_mut_lamports()? -= refund_amount;
+            **agent_account_info.try_borrow_mut_lamports()? += refund_amount;
         }
 
         if payment_amount > 0 {
-            **ctx.accounts.escrow.to_account_info().try_borrow_mut_lamports()? -= payment_amount;
-            **ctx.accounts.api.to_account_info().try_borrow_mut_lamports()? += payment_amount;
+            **escrow_account_info.try_borrow_mut_lamports()? -= payment_amount;
+            **api_account_info.try_borrow_mut_lamports()? += payment_amount;
         }
 
         // Step 6: Update escrow state
@@ -1112,7 +1116,7 @@ fn update_agent_reputation(
     reputation.total_transactions = reputation.total_transactions.saturating_add(1);
 
     // Update average quality
-    let total_quality = reputation.average_quality_received as u64
+    let total_quality = (reputation.average_quality_received as u64)
         .saturating_mul(reputation.total_transactions.saturating_sub(1) as u64)
         .saturating_add(quality_score as u64);
     reputation.average_quality_received =
@@ -1143,7 +1147,7 @@ fn update_api_reputation(
 
     // Quality delivered = inverse of refund
     let quality_delivered = 100u8.saturating_sub(refund_percentage);
-    let total_quality = reputation.average_quality_received as u64
+    let total_quality = (reputation.average_quality_received as u64)
         .saturating_mul(reputation.total_transactions.saturating_sub(1) as u64)
         .saturating_add(quality_delivered as u64);
     reputation.average_quality_received =
@@ -1499,7 +1503,7 @@ pub struct OracleConfig {
 }
 
 /// Type of oracle for verification
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum OracleType {
     Ed25519,
     Switchboard,
