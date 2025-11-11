@@ -1,0 +1,52 @@
+[
+  {
+    "index": 1,
+    "name": "Kamiyo AI",
+    "id": "kamiyo",
+    "publicKey": "5dVGmgzMBdjcKoNoTwxKxbvgVwJsnMmyTx9ezxFxiW4f",
+    "description": "Proprietary AI-powered quality assessment",
+    "methodology": "Claude/GPT-4 analysis with custom scoring model",
+    "weight": 1,
+    "active": true
+  },
+  {
+    "index": 2,
+    "name": "QualityMetrics Inc",
+    "id": "auditor",
+    "publicKey": "4trZFvYAkBrwSmZNfh8hjU7zpEUu6JXuy51wjZNaeSFU",
+    "description": "Independent auditor with manual expert review",
+    "methodology": "Human experts + automated validation tools",
+    "weight": 1,
+    "active": true
+  },
+  {
+    "index": 3,
+    "name": "DataVerify DAO",
+    "id": "community",
+    "publicKey": "7cxSyvZoKoVXedehWTKfYB3dmymUnMViN8NsawMj6zMX",
+    "description": "Community-driven verification via governance",
+    "methodology": "Token-weighted community voting mechanism",
+    "weight": 1,
+    "active": true
+  },
+  {
+    "index": 4,
+    "name": "DataQuality.ai",
+    "id": "ai-service",
+    "publicKey": "AMyUMcqy7FGTgWPhz99pruNSAPq2jeeVKSYN3WVH8cWC",
+    "description": "Alternative AI service provider",
+    "methodology": "Different AI model (GPT-4 vs Claude for diversity)",
+    "weight": 1,
+    "active": true
+  },
+  {
+    "index": 5,
+    "name": "University Research Lab",
+    "id": "academic",
+    "publicKey": "FqTZhXzQmntbywsqVhZPKcuhwPzKbFpFvA5dLSwUFz13",
+    "description": "Academic institution with research-based metrics",
+    "methodology": "Peer-reviewed quality assessment framework",
+    "weight": 1,
+    "active": true
+  }
+]
