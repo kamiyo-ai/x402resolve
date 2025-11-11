@@ -1085,8 +1085,12 @@ pub mod x402_escrow {
             );
 
             // Verify signature based on oracle type
+            // NOTE: Multi-oracle consensus currently only supports Ed25519 signatures
+            // For Switchboard oracles, use resolve_dispute_switchboard() instead
+            // For Custom oracles, future implementation will require additional account context
             match oracle_config.oracle_type {
                 OracleType::Ed25519 => {
+                    // Verify Ed25519 signature from instructions sysvar
                     let message = format!("{}:{}", escrow.transaction_id, submission.quality_score);
                     verify_ed25519_signature(
                         &ctx.accounts.instructions_sysvar,
@@ -1094,19 +1098,25 @@ pub mod x402_escrow {
                         &submission.oracle,
                         message.as_bytes(),
                     )?;
+                    msg!("Ed25519 oracle verified: {}", submission.oracle);
                 }
                 OracleType::Switchboard => {
-                    // Production: Parse Switchboard PullFeedAccountData and verify attestation
-                    // Similar to resolve_dispute_switchboard implementation
-                    // Verify feed_data.last_update_timestamp is fresh (<300s)
-                    // Verify feed_data.result.value matches submission.quality_score
-                    msg!("Switchboard oracle verified: {}", submission.oracle);
+                    // Switchboard verification requires additional accounts (switchboard_function)
+                    // that are not currently part of the multi-oracle context.
+                    // Use resolve_dispute_switchboard() for Switchboard-only disputes,
+                    // or extend this context to include optional Switchboard accounts.
+                    msg!("ERROR: Switchboard oracles not supported in multi-oracle mode");
+                    return Err(EscrowError::UnsupportedOracleType.into());
                 }
                 OracleType::Custom => {
-                    // Production: Implement custom verification logic
-                    // Could check additional accounts, verify cryptographic proofs,
-                    // or integrate with other oracle networks (Pyth, Chainlink, etc.)
-                    msg!("Custom oracle verified: {}", submission.oracle);
+                    // Custom oracle verification is intentionally left for future implementation.
+                    // Potential integrations: Pyth Network, Chainlink, API3, DIA, etc.
+                    // Implementation will require:
+                    // 1. Additional account context for oracle-specific data
+                    // 2. Verification logic specific to each oracle type
+                    // 3. Standardized quality score format across oracle types
+                    msg!("ERROR: Custom oracles not yet implemented");
+                    return Err(EscrowError::UnsupportedOracleType.into());
                 }
             }
 
@@ -2019,4 +2029,7 @@ pub enum EscrowError {
 
     #[msg("Token mint mismatch between accounts")]
     TokenMintMismatch,
+
+    #[msg("Oracle type not supported in multi-oracle consensus (currently only Ed25519)")]
+    UnsupportedOracleType,
 }
