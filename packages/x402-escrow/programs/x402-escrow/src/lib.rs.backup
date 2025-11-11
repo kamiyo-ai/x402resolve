@@ -21,12 +21,6 @@ const MIN_ESCROW_AMOUNT: u64 = 1_000_000;           // 0.001 SOL
 // const DISPUTE_WINDOW: i64 = 172_800;                // 48 hours
 const BASE_DISPUTE_COST: u64 = 1_000_000;           // 0.001 SOL
 
-// Multi-oracle consensus constants
-const MAX_ORACLES: usize = 5;
-const MIN_CONSENSUS_ORACLES: u8 = 2;
-const MAX_SCORE_DEVIATION: u8 = 15;  // Max % difference between oracle scores
-
-
 #[event]
 pub struct EscrowInitialized {
     pub escrow: Pubkey,
@@ -63,41 +57,6 @@ pub struct FundsReleased {
     pub amount: u64,
     pub api: Pubkey,
     pub timestamp: i64,
-}
-
-#[event]
-pub struct OracleRegistryInitialized {
-    pub registry: Pubkey,
-    pub admin: Pubkey,
-    pub min_consensus: u8,
-    pub max_score_deviation: u8,
-}
-
-#[event]
-pub struct OracleAdded {
-    pub registry: Pubkey,
-    pub oracle: Pubkey,
-    pub oracle_type_index: u8,
-    pub weight: u16,
-}
-
-#[event]
-pub struct OracleRemoved {
-    pub registry: Pubkey,
-    pub oracle: Pubkey,
-}
-
-#[event]
-pub struct MultiOracleDisputeResolved {
-    pub escrow: Pubkey,
-    pub transaction_id: String,
-    pub oracle_count: u8,
-    pub individual_scores: Vec<u8>,
-    pub oracles: Vec<Pubkey>,
-    pub consensus_score: u8,
-    pub refund_percentage: u8,
-    pub refund_amount: u64,
-    pub payment_amount: u64,
 }
 
 /// Verify Ed25519 signature instruction
@@ -768,123 +727,6 @@ pub mod x402_escrow {
     }
 }
 
-
-/// Calculate consensus quality score from multiple oracle submissions
-/// Uses median with outlier detection
-fn calculate_consensus_score(scores: &[u8], max_deviation: u8) -> Result<u8> {
-    require!(
-        scores.len() >= 2,
-        EscrowError::InsufficientOracleConsensus
-    );
-
-    let mut sorted = scores.to_vec();
-    sorted.sort_unstable();
-
-    // For 2 oracles: simple average
-    if scores.len() == 2 {
-        let avg = (sorted[0] as u16 + sorted[1] as u16) / 2;
-        return Ok(avg as u8);
-    }
-
-    // For 3+ oracles: use median and filter outliers
-    let median = sorted[sorted.len() / 2];
-
-    // Filter out scores beyond max_deviation from median
-    let valid_scores: Vec<u8> = sorted.iter()
-        .filter(|&&score| {
-            let diff = if score > median {
-                score - median
-            } else {
-                median - score
-            };
-            diff <= max_deviation
-        })
-        .copied()
-        .collect();
-
-    require!(
-        valid_scores.len() >= 2,
-        EscrowError::NoConsensusReached
-    );
-
-    // Return median of valid scores
-    Ok(valid_scores[valid_scores.len() / 2])
-}
-
-/// Calculate refund percentage based on quality score
-/// Uses sliding scale: <50 = 100%, 50-64 = 75%, 65-79 = 35%, ≥80 = 0%
-fn calculate_refund_from_quality(quality_score: u8) -> u8 {
-    match quality_score {
-        0..=49 => 100,    // Full refund for quality < 50
-        50..=64 => 75,    // 75% refund
-        65..=79 => 35,    // 35% refund
-        80..=100 => 0,    // No refund for quality >= 80
-        _ => 0,
-    }
-}
-
-/// Update agent reputation after dispute resolution
-fn update_agent_reputation(
-    reputation: &mut EntityReputation,
-    quality_score: u8,
-    refund_percentage: u8,
-) -> Result<()> {
-    let clock = Clock::get()?;
-
-    reputation.total_transactions = reputation.total_transactions.saturating_add(1);
-
-    // Update average quality
-    let total_quality = reputation.average_quality_received as u64
-        .saturating_mul(reputation.total_transactions.saturating_sub(1) as u64)
-        .saturating_add(quality_score as u64);
-    reputation.average_quality_received =
-        (total_quality / reputation.total_transactions as u64) as u8;
-
-    // Update dispute stats
-    if refund_percentage >= 75 {
-        reputation.disputes_won = reputation.disputes_won.saturating_add(1);
-    } else if refund_percentage >= 25 {
-        reputation.disputes_partial = reputation.disputes_partial.saturating_add(1);
-    } else {
-        reputation.disputes_lost = reputation.disputes_lost.saturating_add(1);
-    }
-
-    reputation.last_updated = clock.unix_timestamp;
-
-    Ok(())
-}
-
-/// Update API provider reputation after dispute resolution
-fn update_api_reputation(
-    reputation: &mut EntityReputation,
-    refund_percentage: u8,
-) -> Result<()> {
-    let clock = Clock::get()?;
-
-    reputation.total_transactions = reputation.total_transactions.saturating_add(1);
-
-    // Quality delivered = inverse of refund
-    let quality_delivered = 100u8.saturating_sub(refund_percentage);
-    let total_quality = reputation.average_quality_received as u64
-        .saturating_mul(reputation.total_transactions.saturating_sub(1) as u64)
-        .saturating_add(quality_delivered as u64);
-    reputation.average_quality_received =
-        (total_quality / reputation.total_transactions as u64) as u8;
-
-    // Update dispute stats (from API perspective)
-    if refund_percentage <= 25 {
-        reputation.disputes_won = reputation.disputes_won.saturating_add(1);
-    } else if refund_percentage <= 75 {
-        reputation.disputes_partial = reputation.disputes_partial.saturating_add(1);
-    } else {
-        reputation.disputes_lost = reputation.disputes_lost.saturating_add(1);
-    }
-
-    reputation.last_updated = clock.unix_timestamp;
-
-    Ok(())
-}
-
 // Helper functions
 fn calculate_dispute_cost(reputation: &EntityReputation) -> u64 {
     if reputation.total_transactions == 0 {
@@ -1135,10 +977,6 @@ pub struct Escrow {
     pub bump: u8,                         // 1
     pub quality_score: Option<u8>,        // 1 + 1
     pub refund_percentage: Option<u8>,    // 1 + 1
-
-    // Multi-oracle consensus data
-    #[max_len(5)]
-    pub oracle_submissions: Vec<OracleSubmission>, // 4 + 5*(32+1+8) = 209 bytes
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
@@ -1290,26 +1128,4 @@ pub enum EscrowError {
 
     #[msg("Quality score mismatch between Switchboard and submitted value")]
     QualityScoreMismatch,
-
-    #[msg("Insufficient oracle consensus - need at least min_consensus oracles")]
-    InsufficientOracleConsensus,
-
-    #[msg("Oracle not registered in registry")]
-    UnregisteredOracle,
-
-    #[msg("Oracle scores too divergent - no consensus reached")]
-    NoConsensusReached,
-
-    #[msg("Oracle already submitted for this dispute")]
-    DuplicateOracleSubmission,
-
-    #[msg("Maximum oracles reached in registry")]
-    MaxOraclesReached,
-
-    #[msg("Oracle not found in registry")]
-    OracleNotFound,
-
-    #[msg("Invalid oracle weight - must be > 0")]
-    InvalidOracleWeight,
-
 }
