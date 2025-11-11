@@ -65,6 +65,129 @@ if (quality < 80) await client.markDisputed(escrow); // Auto-refund
 
 **What you get:** Automatic escrows, quality-based refunds, dispute resolution, reputation tracking, rate limiting—all handled on-chain.
 
+## Autonomous Agent Applications
+
+Production-ready AI agents that make autonomous payments with quality guarantees. Demonstrating advanced multi-agent reasoning, consensus building, and cost optimization.
+
+### Advanced Trading Bot
+
+Sophisticated trading bot with 4-phase reasoning pipeline and quality-weighted data consensus.
+
+**Complex Reasoning:**
+- Multi-source data gathering with automatic dispute filing
+- Quality-weighted consensus building (filters <80% quality)
+- Risk-adjusted decision making with composite scoring
+- Cost-benefit validation factoring x402 refunds
+
+**Key Innovation**: Uses quality scores to weight data sources and adjust position sizing dynamically.
+
+```typescript
+// 4-Phase Decision Pipeline
+Phase 1: Gather data from 3 sources → Auto-dispute if quality <80%
+Phase 2: Build quality-weighted consensus → Filter low-quality data
+Phase 3: Calculate composite risk score → Adjust position size
+Phase 4: Validate ROI including refunds → Execute or hold
+```
+
+[View Full Example →](examples/trading-bot-agent/)
+
+**Example Output:**
+```
+[Phase 1] Multi-Source Data Gathering
+  → High-Frequency Oracle: 97% quality, 0.0005 SOL
+  → Aggregated DEX Data: 88% quality, 0.0003 SOL
+  → Community Sentiment: 73% quality, 0.0002 SOL ⚠ Disputed
+
+[Phase 2] Quality-Weighted Consensus
+  Consensus Price: $102.45 (92% avg quality, 2/3 sources)
+  Signal: BUY (72% confidence)
+
+[Phase 3] Risk-Adjusted Decision
+  Composite Risk Score: 23/100
+  Position Size: 0.2310 SOL (risk-adjusted from 0.30 SOL)
+
+[Phase 4] Cost-Benefit Analysis
+  Data Investment: 0.000946 SOL
+  Expected Profit: 0.004620 SOL
+  ROI: 388% → Execute Trade
+```
+
+### Multi-Agent Orchestration
+
+Coordinator managing 4 specialized agents with quality consensus and dependency resolution.
+
+**Agents:**
+- **SecurityAnalyst**: 90% quality threshold, security audits
+- **MarketAnalyst**: 85% quality threshold, market data
+- **RiskAnalyst**: 95% quality threshold, risk assessment
+- **ComplianceAgent**: 98% quality threshold, regulatory checks
+
+**Advanced Features:**
+- Dependency-based task execution
+- Inter-agent context sharing
+- Quality-weighted voting (higher quality = more weight)
+- Coordinated dispute resolution
+
+```typescript
+// Multi-Agent Consensus Building
+Agent1: 95% quality → 51.9% voting weight
+Agent2: 88% quality → 48.1% voting weight
+Agent3: 72% quality → Filtered out (disputed)
+
+Consensus: STRONG (92% avg quality)
+Decision: PROCEED with high confidence
+```
+
+[View Full Example →](examples/multi-agent-orchestration/)
+
+### CDP Agent Demo
+
+Demand-side agent using Coinbase CDP Embedded Wallets for autonomous API discovery and consumption.
+
+**Features:**
+- Discovers x402-enabled APIs automatically
+- Reasons over available tools
+- Chains multiple API calls
+- Auto-disputes poor quality (<85%)
+
+**Workflow:**
+```
+1. Discovery  → Find 402-enabled endpoints
+2. Reasoning  → Evaluate cost vs quality vs relevance
+3. Execution  → Create escrows, make calls
+4. Assessment → Quality check each response
+5. Chaining   → Use results to inform next calls
+```
+
+[View Full Example →](examples/cdp-agent-demo/)
+
+### Integration Test
+
+End-to-end validation proving agents work with actual infrastructure.
+
+**Tests 6 Components:**
+1. SDK creates real escrows on Solana devnet
+2. Reputation tracking initializes and updates
+3. Agent autonomous consumption with quality checks
+4. Multi-agent coordination and consensus
+5. MCP server tools validation (8 tools)
+6. Quality assessment across scenarios
+
+**Run Test:**
+```bash
+cd examples/agent-integration-test
+npm install
+npm test
+```
+
+**Validates:**
+- Real Solana transactions with explorer links
+- MCP + SDK + Agent integration
+- Quality guarantees enforced
+- All systems working together
+
+[View Test Suite →](examples/agent-integration-test/)
+
 ## MCP Server (AI Agent Integration)
 
 **Production-ready MCP server** for HTTP 402 payments with quality-verified refunds, multi-agent orchestration, and advanced ML-powered features.
