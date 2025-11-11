@@ -9,8 +9,30 @@ use anchor_lang::solana_program::{
     sysvar::instructions::{load_instruction_at_checked, ID as INSTRUCTIONS_ID},
 };
 use switchboard_on_demand::on_demand::accounts::pull_feed::PullFeedAccountData;
+use anchor_spl::token::{self, Token, TokenAccount, Mint, Transfer as SplTransfer};
+use anchor_spl::associated_token::AssociatedToken;
 
 declare_id!("4x8i1j1Xy9wTPCLELtXuBt6nMwCmfzF9BK47BG8MWWf7");
+
+// Known SPL token mints
+pub mod token_mints {
+    use anchor_lang::solana_program::pubkey;
+    use anchor_lang::solana_program::pubkey::Pubkey;
+
+    // Mainnet
+    pub const USDC_MAINNET: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    pub const USDT_MAINNET: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
+
+    // Devnet
+    pub const USDC_DEVNET: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vn2KGtKJr");
+
+    // Helper to check if mint is supported stablecoin
+    pub fn is_stablecoin(mint: &Pubkey) -> bool {
+        *mint == USDC_MAINNET
+            || *mint == USDT_MAINNET
+            || *mint == USDC_DEVNET
+    }
+}
 
 // Validation constants
 const MIN_TIME_LOCK: i64 = 3600;                    // 1 hour
@@ -35,6 +57,8 @@ pub struct EscrowInitialized {
     pub amount: u64,
     pub expires_at: i64,
     pub transaction_id: String,
+    pub is_token: bool,              // Whether this is an SPL token escrow
+    pub token_mint: Option<Pubkey>,  // Mint address for SPL tokens
 }
 
 #[event]
@@ -185,23 +209,21 @@ pub mod x402_escrow {
     /// Initialize a new escrow for agent-to-API payment
     ///
     /// # Arguments
-    /// * `amount` - Amount to escrow (lamports)
+    /// * `amount` - Amount to escrow (lamports or token amount)
     /// * `time_lock` - Duration before auto-release (seconds)
     /// * `transaction_id` - Unique transaction identifier
+    /// * `use_spl_token` - Whether to use SPL token (true) or SOL (false)
     pub fn initialize_escrow(
         ctx: Context<InitializeEscrow>,
         amount: u64,
         time_lock: i64,
         transaction_id: String,
+        use_spl_token: bool,
     ) -> Result<()> {
         // Validate inputs
         require!(
-            amount >= MIN_ESCROW_AMOUNT,
+            amount > 0,
             EscrowError::InvalidAmount
-        );
-        require!(
-            amount <= MAX_ESCROW_AMOUNT,
-            EscrowError::AmountTooLarge
         );
         require!(
             time_lock >= MIN_TIME_LOCK && time_lock <= MAX_TIME_LOCK,
@@ -215,41 +237,80 @@ pub mod x402_escrow {
         let clock = Clock::get()?;
 
         // Initialize escrow state
-        {
-            let escrow = &mut ctx.accounts.escrow;
-            escrow.agent = ctx.accounts.agent.key();
-            escrow.api = ctx.accounts.api.key();
-            escrow.amount = amount;
-            escrow.status = EscrowStatus::Active;
-            escrow.created_at = clock.unix_timestamp;
-            escrow.expires_at = clock.unix_timestamp + time_lock;
-            escrow.transaction_id = transaction_id.clone();
-            escrow.bump = ctx.bumps.escrow;
+        let escrow = &mut ctx.accounts.escrow;
+        escrow.agent = ctx.accounts.agent.key();
+        escrow.api = ctx.accounts.api.key();
+        escrow.amount = amount;
+        escrow.status = EscrowStatus::Active;
+        escrow.created_at = clock.unix_timestamp;
+        escrow.expires_at = clock.unix_timestamp + time_lock;
+        escrow.transaction_id = transaction_id.clone();
+        escrow.bump = ctx.bumps.escrow;
+        escrow.quality_score = None;
+        escrow.refund_percentage = None;
+        escrow.oracle_submissions = Vec::new();
+
+        // Handle SPL token vs SOL
+        if use_spl_token {
+            let token_mint = ctx.accounts.token_mint.as_ref()
+                .ok_or(EscrowError::MissingTokenMint)?;
+            let escrow_token_account = ctx.accounts.escrow_token_account.as_ref()
+                .ok_or(EscrowError::MissingTokenAccount)?;
+            let agent_token_account = ctx.accounts.agent_token_account.as_ref()
+                .ok_or(EscrowError::MissingTokenAccount)?;
+            let token_program = ctx.accounts.token_program.as_ref()
+                .ok_or(EscrowError::MissingTokenProgram)?;
+
+            // Set token fields
+            escrow.token_mint = Some(token_mint.key());
+            escrow.escrow_token_account = Some(escrow_token_account.key());
+            escrow.token_decimals = token_mint.decimals;
+
+            // Transfer tokens from agent to escrow token account
+            let cpi_accounts = SplTransfer {
+                from: agent_token_account.to_account_info(),
+                to: escrow_token_account.to_account_info(),
+                authority: ctx.accounts.agent.to_account_info(),
+            };
+            let cpi_program = token_program.to_account_info();
+            let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+            token::transfer(cpi_ctx, amount)?;
+
+            msg!("SPL Token escrow created: {} tokens of mint {}", amount, token_mint.key());
+        } else {
+            // Native SOL transfer (existing logic)
+            escrow.token_mint = None;
+            escrow.escrow_token_account = None;
+            escrow.token_decimals = 9; // SOL has 9 decimals
+
+            // Verify transfer amount covers rent
+            let rent = Rent::get()?;
+            let min_rent = rent.minimum_balance(8 + Escrow::INIT_SPACE);
+            require!(
+                amount >= min_rent,
+                EscrowError::InsufficientRentReserve
+            );
+
+            // Transfer SOL to escrow PDA
+            let transfer_instruction = anchor_lang::solana_program::system_instruction::transfer(
+                &ctx.accounts.agent.key(),
+                &escrow.key(),
+                amount,
+            );
+            anchor_lang::solana_program::program::invoke(
+                &transfer_instruction,
+                &[
+                    ctx.accounts.agent.to_account_info(),
+                    escrow.to_account_info(),
+                ],
+            )?;
+
+            msg!("SOL escrow created: {} lamports", amount);
         }
 
-        // Verify transfer amount covers rent before executing
-        let rent = Rent::get()?;
-        let min_rent = rent.minimum_balance(8 + Escrow::INIT_SPACE);
-        require!(
-            amount >= min_rent,
-            EscrowError::InsufficientRentReserve
-        );
+        msg!("Expires at: {}", escrow.expires_at);
 
-        // Transfer SOL to escrow PDA
-        let cpi_context = CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            anchor_lang::system_program::Transfer {
-                from: ctx.accounts.agent.to_account_info(),
-                to: ctx.accounts.escrow.to_account_info(),
-            },
-        );
-        anchor_lang::system_program::transfer(cpi_context, amount)?;
-
-        let expires_at = clock.unix_timestamp + time_lock;
-        msg!("Escrow initialized: {} SOL locked", amount as f64 / 1_000_000_000.0);
-        msg!("Expires at: {}", expires_at);
-
-        let escrow = &ctx.accounts.escrow;
         emit!(EscrowInitialized {
             escrow: escrow.key(),
             agent: escrow.agent,
@@ -257,6 +318,8 @@ pub mod x402_escrow {
             amount: escrow.amount,
             expires_at: escrow.expires_at,
             transaction_id: transaction_id,
+            is_token: use_spl_token,
+            token_mint: escrow.token_mint,
         });
 
         Ok(())
@@ -978,30 +1041,98 @@ pub mod x402_escrow {
         // Step 4: Calculate refund percentage from quality score
         let refund_percentage = calculate_refund_from_quality(consensus_score);
 
-        // Step 5: Execute fund transfers
-        let refund_amount = (escrow.amount as u128)
-            .checked_mul(refund_percentage as u128)
-            .ok_or(EscrowError::ArithmeticOverflow)?
-            .checked_div(100)
-            .ok_or(EscrowError::ArithmeticOverflow)? as u64;
+        // Step 5: Extract data for transfers and drop mutable borrow
+        let (refund_amount, payment_amount, transaction_id_bytes, escrow_bump, token_mint) = {
+            let refund_amount = (escrow.amount as u128)
+                .checked_mul(refund_percentage as u128)
+                .ok_or(EscrowError::ArithmeticOverflow)?
+                .checked_div(100)
+                .ok_or(EscrowError::ArithmeticOverflow)? as u64;
 
-        let payment_amount = escrow.amount
-            .checked_sub(refund_amount)
-            .ok_or(EscrowError::ArithmeticOverflow)?;
+            let payment_amount = escrow.amount
+                .checked_sub(refund_amount)
+                .ok_or(EscrowError::ArithmeticOverflow)?;
 
-        let escrow_account_info = escrow.to_account_info();
-        let agent_account_info = ctx.accounts.agent.to_account_info();
-        let api_account_info = ctx.accounts.api.to_account_info();
+            let transaction_id_bytes = escrow.transaction_id.as_bytes().to_vec();
+            let escrow_bump = escrow.bump;
+            let token_mint = escrow.token_mint;
 
+            (refund_amount, payment_amount, transaction_id_bytes, escrow_bump, token_mint)
+        };
+        // Mutable borrow of escrow is dropped here
+
+        // Prepare PDA seeds for signing transfers
+        let seeds = &[
+            b"escrow".as_ref(),
+            transaction_id_bytes.as_slice(),
+            &[escrow_bump],
+        ];
+        let signer_seeds = &[&seeds[..]];
+
+        // Transfer refund to agent
         if refund_amount > 0 {
-            **escrow_account_info.try_borrow_mut_lamports()? -= refund_amount;
-            **agent_account_info.try_borrow_mut_lamports()? += refund_amount;
+            if token_mint.is_some() {
+                // SPL Token transfer
+                let escrow_token = ctx.accounts.escrow_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let agent_token = ctx.accounts.agent_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let token_prog = ctx.accounts.token_program.as_ref()
+                    .ok_or(EscrowError::MissingTokenProgram)?;
+
+                let cpi_accounts = SplTransfer {
+                    from: escrow_token.to_account_info(),
+                    to: agent_token.to_account_info(),
+                    authority: ctx.accounts.escrow.to_account_info(),
+                };
+                let cpi_ctx = CpiContext::new_with_signer(
+                    token_prog.to_account_info(),
+                    cpi_accounts,
+                    signer_seeds,
+                );
+                token::transfer(cpi_ctx, refund_amount)?;
+            } else {
+                // Native SOL transfer
+                let escrow_account_info = ctx.accounts.escrow.to_account_info();
+                let agent_account_info = ctx.accounts.agent.to_account_info();
+                **escrow_account_info.try_borrow_mut_lamports()? -= refund_amount;
+                **agent_account_info.try_borrow_mut_lamports()? += refund_amount;
+            }
         }
 
+        // Transfer payment to API provider
         if payment_amount > 0 {
-            **escrow_account_info.try_borrow_mut_lamports()? -= payment_amount;
-            **api_account_info.try_borrow_mut_lamports()? += payment_amount;
+            if token_mint.is_some() {
+                // SPL Token transfer
+                let escrow_token = ctx.accounts.escrow_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let api_token = ctx.accounts.api_token_account.as_ref()
+                    .ok_or(EscrowError::MissingTokenAccount)?;
+                let token_prog = ctx.accounts.token_program.as_ref()
+                    .ok_or(EscrowError::MissingTokenProgram)?;
+
+                let cpi_accounts = SplTransfer {
+                    from: escrow_token.to_account_info(),
+                    to: api_token.to_account_info(),
+                    authority: ctx.accounts.escrow.to_account_info(),
+                };
+                let cpi_ctx = CpiContext::new_with_signer(
+                    token_prog.to_account_info(),
+                    cpi_accounts,
+                    signer_seeds,
+                );
+                token::transfer(cpi_ctx, payment_amount)?;
+            } else {
+                // Native SOL transfer
+                let escrow_account_info = ctx.accounts.escrow.to_account_info();
+                let api_account_info = ctx.accounts.api.to_account_info();
+                **escrow_account_info.try_borrow_mut_lamports()? -= payment_amount;
+                **api_account_info.try_borrow_mut_lamports()? += payment_amount;
+            }
         }
+
+        // Re-borrow escrow mutably for state updates
+        let escrow = &mut ctx.accounts.escrow;
 
         // Step 6: Update escrow state
         escrow.status = EscrowStatus::Resolved;
@@ -1236,6 +1367,18 @@ pub struct InitializeEscrow<'info> {
     pub api: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
+
+    // Optional SPL token accounts (for SPL token escrows)
+    pub token_mint: Option<Account<'info, Mint>>,
+
+    #[account(mut)]
+    pub escrow_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub agent_token_account: Option<Account<'info, TokenAccount>>,
+
+    pub token_program: Option<Program<'info, Token>>,
+    pub associated_token_program: Option<Program<'info, AssociatedToken>>,
 }
 
 #[derive(Accounts)]
@@ -1474,6 +1617,18 @@ pub struct ResolveDisputeMultiOracle<'info> {
     pub instructions_sysvar: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
+
+    // Optional token accounts for SPL transfers
+    #[account(mut)]
+    pub escrow_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub agent_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub api_token_account: Option<Account<'info, TokenAccount>>,
+
+    pub token_program: Option<Program<'info, Token>>,
 }
 
 // ============================================================================
@@ -1544,6 +1699,11 @@ pub struct Escrow {
     // Multi-oracle consensus data
     #[max_len(5)]
     pub oracle_submissions: Vec<OracleSubmission>, // 4 + 5*(32+1+8) = 209 bytes
+
+    // SPL Token support fields
+    pub token_mint: Option<Pubkey>,          // 1 + 32 = 33 bytes
+    pub escrow_token_account: Option<Pubkey>, // 1 + 32 = 33 bytes
+    pub token_decimals: u8,                  // 1 byte (0 for SOL, 6 for USDC/USDT, 9 for SOL)
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
@@ -1717,4 +1877,15 @@ pub enum EscrowError {
     #[msg("Invalid oracle weight - must be > 0")]
     InvalidOracleWeight,
 
+    #[msg("Token mint account is required for SPL token escrows")]
+    MissingTokenMint,
+
+    #[msg("Token account is required for SPL token escrows")]
+    MissingTokenAccount,
+
+    #[msg("Token program is required for SPL token escrows")]
+    MissingTokenProgram,
+
+    #[msg("Token decimals mismatch")]
+    TokenDecimalsMismatch,
 }
