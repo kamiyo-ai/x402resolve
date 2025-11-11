@@ -261,6 +261,37 @@ pub mod x402_escrow {
             let token_program = ctx.accounts.token_program.as_ref()
                 .ok_or(EscrowError::MissingTokenProgram)?;
 
+            // Validate token mints match across all accounts
+            require!(
+                escrow_token_account.mint == token_mint.key(),
+                EscrowError::TokenMintMismatch
+            );
+            require!(
+                agent_token_account.mint == token_mint.key(),
+                EscrowError::TokenMintMismatch
+            );
+
+            // Validate escrow token account is owned by the escrow PDA
+            require!(
+                escrow_token_account.owner == escrow.key(),
+                EscrowError::InvalidTokenAccountOwner
+            );
+
+            // Validate amount is not zero
+            require!(amount > 0, EscrowError::InvalidAmount);
+
+            // Validate agent has sufficient balance
+            require!(
+                agent_token_account.amount >= amount,
+                EscrowError::InsufficientDisputeFunds
+            );
+
+            // Validate token accounts are not closed
+            require!(
+                escrow_token_account.amount == 0, // Should be empty initially
+                EscrowError::InvalidTokenAccountOwner
+            );
+
             // Set token fields
             escrow.token_mint = Some(token_mint.key());
             escrow.escrow_token_account = Some(escrow_token_account.key());
@@ -331,17 +362,30 @@ pub mod x402_escrow {
     /// - Agent (explicitly releasing)
     /// - Anyone after time_lock expires (auto-release)
     pub fn release_funds(ctx: Context<ReleaseFunds>) -> Result<()> {
-        let escrow = &mut ctx.accounts.escrow;
         let clock = Clock::get()?;
 
+        // Extract data needed for validation and transfer
+        let (status, agent_key, expires_at, transfer_amount, transaction_id, bump, token_mint) = {
+            let escrow = &ctx.accounts.escrow;
+            (
+                escrow.status,
+                escrow.agent,
+                escrow.expires_at,
+                escrow.amount,
+                escrow.transaction_id.clone(),
+                escrow.bump,
+                escrow.token_mint,
+            )
+        };
+
         require!(
-            escrow.status == EscrowStatus::Active,
+            status == EscrowStatus::Active,
             EscrowError::InvalidStatus
         );
 
         // Check if caller is agent OR time_lock expired
-        let is_agent = ctx.accounts.agent.key() == escrow.agent;
-        let time_lock_expired = clock.unix_timestamp >= escrow.expires_at;
+        let is_agent = ctx.accounts.agent.key() == agent_key;
+        let time_lock_expired = clock.unix_timestamp >= expires_at;
 
         // If not agent, time lock must have expired
         if !is_agent {
@@ -350,12 +394,7 @@ pub mod x402_escrow {
 
         require!(is_agent || time_lock_expired, EscrowError::Unauthorized);
 
-        // Copy values before PDA signing
-        let transfer_amount = escrow.amount;
-        let transaction_id = escrow.transaction_id.clone();
-        let bump = escrow.bump;
-
-        // Transfer full amount to API
+        // Prepare PDA seeds for signing
         let seeds = &[
             b"escrow",
             transaction_id.as_bytes(),
@@ -363,20 +402,63 @@ pub mod x402_escrow {
         ];
         let signer = &[&seeds[..]];
 
-        let cpi_context = CpiContext::new_with_signer(
-            ctx.accounts.system_program.to_account_info(),
-            anchor_lang::system_program::Transfer {
-                from: ctx.accounts.escrow.to_account_info(),
-                to: ctx.accounts.api.to_account_info(),
-            },
-            signer,
-        );
-        anchor_lang::system_program::transfer(cpi_context, transfer_amount)?;
+        // Transfer full amount to API (SOL or SPL token)
+        if token_mint.is_some() {
+            // SPL Token transfer
+            let escrow_token_account = ctx.accounts.escrow_token_account.as_ref()
+                .ok_or(EscrowError::MissingTokenAccount)?;
+            let api_token_account = ctx.accounts.api_token_account.as_ref()
+                .ok_or(EscrowError::MissingTokenAccount)?;
+            let token_program = ctx.accounts.token_program.as_ref()
+                .ok_or(EscrowError::MissingTokenProgram)?;
+
+            // Validate token mint matches
+            let expected_mint = token_mint.unwrap();
+            require!(
+                escrow_token_account.mint == expected_mint,
+                EscrowError::TokenMintMismatch
+            );
+            require!(
+                api_token_account.mint == expected_mint,
+                EscrowError::TokenMintMismatch
+            );
+
+            // Validate escrow has sufficient balance
+            require!(
+                escrow_token_account.amount >= transfer_amount,
+                EscrowError::InsufficientDisputeFunds
+            );
+
+            let cpi_accounts = SplTransfer {
+                from: escrow_token_account.to_account_info(),
+                to: api_token_account.to_account_info(),
+                authority: ctx.accounts.escrow.to_account_info(),
+            };
+            let cpi_ctx = CpiContext::new_with_signer(
+                token_program.to_account_info(),
+                cpi_accounts,
+                signer,
+            );
+            token::transfer(cpi_ctx, transfer_amount)?;
+
+            msg!("SPL Token funds released to API: {} tokens", transfer_amount);
+        } else {
+            // Native SOL transfer
+            let cpi_context = CpiContext::new_with_signer(
+                ctx.accounts.system_program.to_account_info(),
+                anchor_lang::system_program::Transfer {
+                    from: ctx.accounts.escrow.to_account_info(),
+                    to: ctx.accounts.api.to_account_info(),
+                },
+                signer,
+            );
+            anchor_lang::system_program::transfer(cpi_context, transfer_amount)?;
+
+            msg!("SOL funds released to API: {} SOL", transfer_amount as f64 / 1_000_000_000.0);
+        }
 
         let escrow = &mut ctx.accounts.escrow;
         escrow.status = EscrowStatus::Released;
-
-        msg!("Funds released to API: {} SOL", escrow.amount as f64 / 1_000_000_000.0);
 
         let clock = Clock::get()?;
         emit!(FundsReleased {
@@ -1080,6 +1162,23 @@ pub mod x402_escrow {
                 let token_prog = ctx.accounts.token_program.as_ref()
                     .ok_or(EscrowError::MissingTokenProgram)?;
 
+                // Critical: Validate token mint matches
+                let expected_mint = token_mint.unwrap();
+                require!(
+                    escrow_token.mint == expected_mint,
+                    EscrowError::TokenMintMismatch
+                );
+                require!(
+                    agent_token.mint == expected_mint,
+                    EscrowError::TokenMintMismatch
+                );
+
+                // Validate sufficient balance in escrow
+                require!(
+                    escrow_token.amount >= refund_amount,
+                    EscrowError::InsufficientDisputeFunds
+                );
+
                 let cpi_accounts = SplTransfer {
                     from: escrow_token.to_account_info(),
                     to: agent_token.to_account_info(),
@@ -1110,6 +1209,23 @@ pub mod x402_escrow {
                     .ok_or(EscrowError::MissingTokenAccount)?;
                 let token_prog = ctx.accounts.token_program.as_ref()
                     .ok_or(EscrowError::MissingTokenProgram)?;
+
+                // Critical: Validate token mint matches
+                let expected_mint = token_mint.unwrap();
+                require!(
+                    escrow_token.mint == expected_mint,
+                    EscrowError::TokenMintMismatch
+                );
+                require!(
+                    api_token.mint == expected_mint,
+                    EscrowError::TokenMintMismatch
+                );
+
+                // Validate sufficient balance remains
+                require!(
+                    escrow_token.amount >= payment_amount,
+                    EscrowError::InsufficientDisputeFunds
+                );
 
                 let cpi_accounts = SplTransfer {
                     from: escrow_token.to_account_info(),
@@ -1398,6 +1514,15 @@ pub struct ReleaseFunds<'info> {
     pub api: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
+
+    // Optional SPL token accounts
+    #[account(mut)]
+    pub escrow_token_account: Option<Account<'info, TokenAccount>>,
+
+    #[account(mut)]
+    pub api_token_account: Option<Account<'info, TokenAccount>>,
+
+    pub token_program: Option<Program<'info, Token>>,
 }
 
 #[derive(Accounts)]
@@ -1706,7 +1831,7 @@ pub struct Escrow {
     pub token_decimals: u8,                  // 1 byte (0 for SOL, 6 for USDC/USDT, 9 for SOL)
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]
 pub enum EscrowStatus {
     Active,      // Payment locked, awaiting resolution
     Released,    // Funds released to API (happy path)
@@ -1888,4 +2013,10 @@ pub enum EscrowError {
 
     #[msg("Token decimals mismatch")]
     TokenDecimalsMismatch,
+
+    #[msg("Invalid token account owner")]
+    InvalidTokenAccountOwner,
+
+    #[msg("Token mint mismatch between accounts")]
+    TokenMintMismatch,
 }
