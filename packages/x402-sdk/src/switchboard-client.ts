@@ -4,7 +4,9 @@
  */
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { CrossbarClient, PullFeed, loadLookupTables } from '@switchboard-xyz/on-demand';
+// NOTE: Switchboard On-Demand SDK v1.2+ has breaking changes
+// TODO: Update to latest Switchboard API when integrating oracle quality verification
+// import { CrossbarClient, PullFeed, loadLookupTables } from '@switchboard-xyz/on-demand';
 
 export interface QualityScoringParams {
   originalQuery: string;
@@ -36,13 +38,11 @@ export class SwitchboardClient {
   private connection: Connection;
   private functionId: PublicKey;
   private queueId: PublicKey;
-  private crossbar: CrossbarClient;
 
   constructor(config: SwitchboardConfig) {
     this.connection = config.connection;
     this.functionId = config.functionId;
     this.queueId = config.queueId;
-    this.crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
   }
 
   /**
@@ -62,59 +62,16 @@ export class SwitchboardClient {
     attestation: PublicKey;
     result: QualityScoringResult;
   }> {
-    try {
-      // Load the Switchboard Function
-      const [pullFeed] = PullFeed.derivePDA(this.queueId, this.functionId);
-
-      // Simulate function execution (development mode)
-      // In production, this would be submitted to oracle network
-      const simulationResult = await this.crossbar.simulate({
-        accounts: {
-          pullFeed: pullFeed.toBase58(),
-        },
-        params: {
-          originalQuery: params.originalQuery,
-          dataReceived: JSON.stringify(params.dataReceived),
-          expectedCriteria: params.expectedCriteria,
-          expectedRecordCount: params.expectedRecordCount || 0,
-          transactionId: params.transactionId || '',
-        },
-      });
-
-      // Extract result from simulation
-      const qualityScore = simulationResult.result.value as number;
-      const refundPercentage = this.calculateRefundPercentage(qualityScore);
-
-      // Parse full result details
-      const result: QualityScoringResult = {
-        qualityScore,
-        refundPercentage,
-        reasoning: simulationResult.result.metadata?.reasoning || 'Quality assessment completed',
-        timestamp: Date.now(),
-        breakdown: {
-          semantic: simulationResult.result.metadata?.semantic || 0,
-          completeness: simulationResult.result.metadata?.completeness || 0,
-          freshness: simulationResult.result.metadata?.freshness || 0,
-        },
-      };
-
-      return {
-        qualityScore,
-        refundPercentage,
-        attestation: pullFeed,
-        result,
-      };
-    } catch (error) {
-      console.error('Switchboard quality assessment error:', error);
-      throw new Error(`Failed to request quality assessment: ${error}`);
-    }
+    // TODO: Update to Switchboard On-Demand SDK v1.2+ API
+    // The API has changed significantly - needs migration
+    throw new Error('Switchboard integration requires SDK migration to v1.2+. Use MockSwitchboardClient for testing.');
   }
 
   /**
    * Calculate refund percentage from quality score
    * Matches the Anchor program logic
    */
-  private calculateRefundPercentage(qualityScore: number): number {
+  protected calculateRefundPercentage(qualityScore: number): number {
     if (qualityScore >= 80) {
       return 0; // Good quality - no refund
     }
@@ -289,13 +246,5 @@ export class MockSwitchboardClient extends SwitchboardClient {
    */
   setMockScore(score: number): void {
     this.mockQualityScore = score;
-  }
-
-  private calculateRefundPercentage(qualityScore: number): number {
-    if (qualityScore >= 80) return 0;
-    if (qualityScore >= 50) {
-      return Math.round(((80 - qualityScore) / 80) * 100);
-    }
-    return 100;
   }
 }
