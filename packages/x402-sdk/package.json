@@ -1,5 +1,5 @@
 {
-  "name": "@kamiyo/x402-sdk",
+  "name": "@x402resolve/x402-sdk",
   "version": "1.0.0",
   "description": "TypeScript SDK for x402Resolve - Automated AI agent payment and dispute resolution",
   "main": "dist/index.js",
